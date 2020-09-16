@@ -1,2 +1,2 @@
-# shop_tool_douyin
-抖音小店工具
+# shop_sdk_douyin
+抖音小店sdk
