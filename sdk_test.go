@@ -1,7 +1,9 @@
 package shop_sdk_douyin
 
 import (
+	"fmt"
 	"testing"
+	"time"
 )
 
 const (
@@ -9,8 +11,21 @@ const (
 	TestAppSecret = "25dd8e74-216e-42cb-8012-7d3bba90d3bd"
 )
 
-var app = NewApp(TestAppKey, TestAppSecret, "3c1691ab-0b23-4656-bfc2-32b65d1d1276")
+var app = NewBaseApp(TestAppKey, TestAppSecret)
 
 func TestShopBrandList(t *testing.T) {
-	app.ProductList(ProductListArg{Page: 0, Size: 10, Status: PStatusOn, CheckStatus: PCheckPass})
+	time.Now()
+	appx := app.NewAccessTokenMust("3c1691ab-0b23-4656-bfc2-32b65d1d1276")
+	l, e := appx.ProductList(ProductListArg{
+		Page:        0,
+		Size:        10,
+		Status:      PStatusOn,
+		CheckStatus: PCheckPass,
+	})
+	fmt.Printf("%+v %v\n\n", l, e)
+	d, e := appx.ProductDetail(ProductDetailArg{ProductStrID: "3436456108863134126", ShowDraft: true})
+	fmt.Printf("%+v %v\n\n", d, e)
+	fmt.Printf("%+v\n\n", d.SpecPics)
+	fmt.Printf("%+v\n\n", d.SpecPrices)
+	fmt.Printf("%+v\n\n", d.Specs[0])
 }
