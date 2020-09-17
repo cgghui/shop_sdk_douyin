@@ -1,6 +1,6 @@
 package shop_sdk_douyin
 
-// 商品上下架状态
+// PStatus 商品上下架状态
 type PStatus uint8
 
 const (
@@ -8,7 +8,7 @@ const (
 	PStatusOff                // 下架
 )
 
-// 商品审核状态
+// PCheck 商品审核状态
 type PCheck uint8
 
 const (
@@ -19,6 +19,7 @@ const (
 	PCheckForbid                   // 封禁
 )
 
+// PayT 付款方式
 type PayT uint8
 
 const (
@@ -26,6 +27,11 @@ const (
 	OnlinePayment             // 在线支付
 	Casual                    // 让客户选择
 )
+
+// PCid 商品分类id
+type PCid uint16
+
+const PCidTOP PCid = 0
 
 // ProductListArg ProductList方法的参数
 type ProductListArg struct {
@@ -35,8 +41,8 @@ type ProductListArg struct {
 	CheckStatus PCheck  `paramName:"check_status"` // 指定审核状态返回商品列表
 }
 
-// ProductListResponse ProductList方法的响应结果
-type ProductListResponse struct {
+// ResponseProductList ProductList方法的响应结果
+type ResponseProductList struct {
 	All         uint32    `mapstructure:"all"`          // 商品总数
 	AllPages    uint32    `mapstructure:"all_pages"`    // 已当前size所得的分页数
 	Count       uint32    `mapstructure:"count"`        // 当前条件data返回结果数量
@@ -60,9 +66,9 @@ type Product struct {
 	SpecID          uint64  `mapstructure:"spec_id"`          // 规格id, 要先创建商品通用规格, 如颜色-尺寸
 	CheckStatus     PCheck  `mapstructure:"check_status"`     //
 	Mobile          string  `mapstructure:"mobile"`           // 客服号码
-	FirstCid        uint16  `mapstructure:"first_cid"`        // 一级分类id（三个分类级别请确保从属正确）
-	SecondCid       uint16  `mapstructure:"second_cid"`       // 二级分类id
-	ThirdCid        uint16  `mapstructure:"third_cid"`        // 三级分类id
+	FirstCid        PCid    `mapstructure:"first_cid"`        // 一级分类id（三个分类级别请确保从属正确）
+	SecondCid       PCid    `mapstructure:"second_cid"`       // 二级分类id
+	ThirdCid        PCid    `mapstructure:"third_cid"`        // 三级分类id
 	PayType         PayT    `mapstructure:"pay_type"`         // 支付方式，必填，0-货到付款，1-在线支付，2-二者都支持
 	RecommendRemark string  `mapstructure:"recommend_remark"` // 商家推荐语，不能含emoj表情
 	IsCreate        uint8   `mapstructure:"is_create"`

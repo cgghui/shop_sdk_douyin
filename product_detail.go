@@ -8,14 +8,8 @@ const (
 	PLeafY              // 子级
 )
 
-// ProductDetail方法的参数
-type ProductDetailArg struct {
-	ProductStrID string `paramName:"product_id"` // 商品id
-	ShowDraft    bool   `paramName:"show_draft"` // true：读取草稿数据；false：读取上架数据
-}
-
-// ProductDetailResponse ProductDetail方法的响应结果
-type ProductDetailResponse struct {
+// ResponseProductDetail ProductDetail方法的响应结果
+type ResponseProductDetail struct {
 	Product       `mapstructure:",squash"`
 	Pic           []string           `mapstructure:"pic"`            //
 	ProductFormat string             `mapstructure:"product_format"` //
@@ -48,10 +42,8 @@ type ProductSpecPic struct {
 
 // ProductSpecPrice 商品选项<价格表>
 type ProductSpecPrice struct {
+	BaseSkuInfo     `mapstructure:",squash"`
 	SkuID           uint64   `mapstructure:"sku_id"`           // todo 目前还不知道这字段是什么意思
 	SpecDetailIDS   []uint64 `mapstructure:"spec_detail_ids"`  // 规格id 与 ProductSpec.ID 对应
-	StockNum        uint32   `mapstructure:"stock_num"`        // 库存余量
-	Price           uint32   `mapstructure:"price"`            // 价格
 	SettlementPrice uint32   `mapstructure:"settlement_price"` // 结算价格
-	Code            string   `mapstructure:"code"`             // todo 目前还不知道这字段是什么意思
 }
