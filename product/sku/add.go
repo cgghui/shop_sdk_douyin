@@ -6,7 +6,7 @@ import (
 
 // ArgAdd ProductAdd方法的参数
 type ArgAdd struct {
-	unit.SpecSkuInfo
+	Info
 	ProductStrID    unit.ProductID  `paramName:"product_id"`       // 商品id
 	outSkuID        uint64          `paramName:"out_sku_id"`       // 业务方自己的sku_id，唯一需为数字字符串，max = int64
 	SpecID          unit.SpecID     `paramName:"spec_id"`          // 规格id，依赖/spec/list接口的返回

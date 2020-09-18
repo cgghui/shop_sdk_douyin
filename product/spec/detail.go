@@ -1,6 +1,7 @@
 package spec
 
 import (
+	"github.com/cgghui/shop_sdk_douyin/product/sku"
 	"github.com/cgghui/shop_sdk_douyin/unit"
 )
 
@@ -43,8 +44,8 @@ type Pic struct {
 
 // Price 商品选项<价格表>
 type Price struct {
-	unit.SpecSkuInfo `mapstructure:",squash"`
-	SkuID            uint64     `mapstructure:"sku_id"`           // todo 目前还不知道这字段是什么意思
-	SpecDetailIDS    []uint64   `mapstructure:"spec_detail_ids"`  // 规格id 与 ProductSpec.ID 对应
-	SettlementPrice  unit.Price `mapstructure:"settlement_price"` // 结算价格
+	sku.Info        `mapstructure:",squash"`
+	SkuID           uint64     `mapstructure:"sku_id"`           // todo 目前还不知道这字段是什么意思
+	SpecDetailIDS   []uint64   `mapstructure:"spec_detail_ids"`  // 规格id 与 ProductSpec.ID 对应
+	SettlementPrice unit.Price `mapstructure:"settlement_price"` // 结算价格
 }
