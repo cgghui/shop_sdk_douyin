@@ -17,5 +17,5 @@ type ResponseSkuList struct {
 type BaseSkuInfo struct {
 	StockNum uint32 `mapstructure:"stock_num"` // 库存余量
 	Price    uint32 `mapstructure:"price"`     // 价格
-	Code     string `mapstructure:"code"`      // todo 目前还不知道这字段是什么意思
+	Code     string `mapstructure:"code"`      // 商家自定义的sku代码
 }

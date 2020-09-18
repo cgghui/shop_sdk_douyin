@@ -28,11 +28,6 @@ const (
 	Casual                    // 让客户选择
 )
 
-// PCid 商品分类id
-type PCid uint16
-
-const PCidTOP PCid = 0
-
 // ProductListArg ProductList方法的参数
 type ProductListArg struct {
 	Page        uint8   // 第几页（第一页为0）
@@ -53,25 +48,25 @@ type ResponseProductList struct {
 
 // Product 商品基础信息
 type Product struct {
-	ProductStrID    string  `mapstructure:"product_id_str"`   // 商品id的字符串版本
-	ProductID       uint64  `mapstructure:"product_id"`       // 商品id todo 好像不准，也不知道这是为什么
-	OpenUserID      uint64  `mapstructure:"open_user_id"`     //
-	Name            string  `mapstructure:"name"`             // 商品名称，最多30个字符，不能含emoj表情
-	Description     string  `mapstructure:"description"`      // 商品描述，目前只支持图片。多张图片用 "|" 分开
-	Img             string  `mapstructure:"img"`              //
-	MarketPrice     uint32  `mapstructure:"market_price"`     // 划线价，单位分
-	DiscountPrice   uint32  `mapstructure:"discount_price"`   // 售价，单位分
-	SettlementPrice uint32  `mapstructure:"settlement_price"` //
-	Status          PStatus `mapstructure:"status"`           //
-	SpecID          uint64  `mapstructure:"spec_id"`          // 规格id, 要先创建商品通用规格, 如颜色-尺寸
-	CheckStatus     PCheck  `mapstructure:"check_status"`     //
-	Mobile          string  `mapstructure:"mobile"`           // 客服号码
-	FirstCid        PCid    `mapstructure:"first_cid"`        // 一级分类id（三个分类级别请确保从属正确）
-	SecondCid       PCid    `mapstructure:"second_cid"`       // 二级分类id
-	ThirdCid        PCid    `mapstructure:"third_cid"`        // 三级分类id
-	PayType         PayT    `mapstructure:"pay_type"`         // 支付方式，必填，0-货到付款，1-在线支付，2-二者都支持
-	RecommendRemark string  `mapstructure:"recommend_remark"` // 商家推荐语，不能含emoj表情
-	IsCreate        uint8   `mapstructure:"is_create"`
-	CreateTime      string  `mapstructure:"create_time"`
-	UpdateTime      string  `mapstructure:"update_time"`
+	ProductStrID    string       `mapstructure:"product_id_str"`   // 商品id的字符串版本
+	ProductID       uint64       `mapstructure:"product_id"`       // 商品id todo 好像不准，也不知道这是为什么
+	OpenUserID      uint64       `mapstructure:"open_user_id"`     //
+	Name            string       `mapstructure:"name"`             // 商品名称，最多30个字符，不能含emoj表情
+	Description     string       `mapstructure:"description"`      // 商品描述，目前只支持图片。多张图片用 "|" 分开
+	Img             string       `mapstructure:"img"`              //
+	MarketPrice     ProductPrice `mapstructure:"market_price"`     // 划线价，单位分
+	DiscountPrice   ProductPrice `mapstructure:"discount_price"`   // 售价，单位分
+	SettlementPrice ProductPrice `mapstructure:"settlement_price"` //
+	Status          PStatus      `mapstructure:"status"`           //
+	SpecID          uint64       `mapstructure:"spec_id"`          // 规格id, 要先创建商品通用规格, 如颜色-尺寸
+	CheckStatus     PCheck       `mapstructure:"check_status"`     //
+	Mobile          string       `mapstructure:"mobile"`           // 客服号码
+	FirstCid        PCid         `mapstructure:"first_cid"`        // 一级分类id（三个分类级别请确保从属正确）
+	SecondCid       PCid         `mapstructure:"second_cid"`       // 二级分类id
+	ThirdCid        PCid         `mapstructure:"third_cid"`        // 三级分类id
+	PayType         PayT         `mapstructure:"pay_type"`         // 支付方式，必填，0-货到付款，1-在线支付，2-二者都支持
+	RecommendRemark string       `mapstructure:"recommend_remark"` // 商家推荐语，不能含emoj表情
+	IsCreate        uint8        `mapstructure:"is_create"`
+	CreateTime      string       `mapstructure:"create_time"`
+	UpdateTime      string       `mapstructure:"update_time"`
 }

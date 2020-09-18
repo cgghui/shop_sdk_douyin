@@ -4,6 +4,9 @@ type ProductInterface interface {
 	ProductList(ProductListArg) (ResponseProductList, error)
 	ProductDetail(string, ...bool) (ResponseProductDetail, error)
 	ProductCategory(...PCid) ([]ResponseProductCategory, error)
+	SpecAdd(SpecAddArg) (ResponseSpecAdd, error)
+	SpecList() ([]ResponseSpecList, error)
+	SpecDetail(SpecID) (ResponseSpecDetail, error)
 	SkuList(string) ([]ResponseSkuList, error)
 }
 

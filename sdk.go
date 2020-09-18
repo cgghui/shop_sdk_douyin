@@ -66,6 +66,42 @@ func (a *App) ProductCategory(id ...PCid) ([]ResponseProductCategory, error) {
 	return body, nil
 }
 
+// ProductAdd 添加商品
+// https://op.jinritemai.com/docs/api-docs/14/59
+func (a *App) ProductAdd(arg ProductAddArg) {
+
+}
+
+// SpecAdd 添加选项规格
+// https://op.jinritemai.com/docs/api-docs/14/64
+func (a *App) SpecAdd(arg SpecAddArg) (ResponseSpecAdd, error) {
+	var body ResponseSpecAdd
+	if err := a.base.NewRequest("spec.add", arg, &body); err != nil {
+		return body, err
+	}
+	return body, nil
+}
+
+// SpecList 获取选项规格列表
+// https://op.jinritemai.com/docs/api-docs/14/64
+func (a *App) SpecList() ([]ResponseSpecList, error) {
+	var body []ResponseSpecList
+	if err := a.base.NewRequest("spec.list", nil, &body); err != nil {
+		return body, err
+	}
+	return body, nil
+}
+
+// SpecDetail 获取选项规格详情
+// https://op.jinritemai.com/docs/api-docs/14/63
+func (a *App) SpecDetail(id SpecID) (ResponseSpecDetail, error) {
+	var body ResponseSpecDetail
+	if err := a.base.NewRequest("spec.specDetail", ParamMap{"id": id}, &body); err != nil {
+		return body, err
+	}
+	return body, nil
+}
+
 // SkuList 获取商品sku列表
 // id 分类id，如果不指则获取最顶级
 // https://op.jinritemai.com/docs/api-docs/14/82
