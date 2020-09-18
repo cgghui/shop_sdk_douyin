@@ -1,4 +1,4 @@
-package shop_sdk_douyin
+package sku
 
 // ResponseSkuList SkuList方法的响应结果
 type ResponseSkuList struct {

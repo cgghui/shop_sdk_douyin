@@ -1,5 +1,10 @@
 package shop_sdk_douyin
 
+import (
+	"github.com/cgghui/shop_sdk_douyin/product_spec/sku"
+	"github.com/cgghui/shop_sdk_douyin/product_spec/spec"
+)
+
 type App struct {
 	base         *BaseApp
 	AccessToken  string `mapstructure:"access_token"`
@@ -74,8 +79,8 @@ func (a *App) ProductAdd(arg ProductAddArg) {
 
 // SpecAdd 添加选项规格
 // https://op.jinritemai.com/docs/api-docs/14/64
-func (a *App) SpecAdd(arg SpecAddArg) (ResponseSpecAdd, error) {
-	var body ResponseSpecAdd
+func (a *App) SpecAdd(arg spec.SpecAddArg) (spec.ResponseSpecAdd, error) {
+	var body spec.ResponseSpecAdd
 	if err := a.base.NewRequest("spec.add", arg, &body); err != nil {
 		return body, err
 	}
@@ -84,8 +89,8 @@ func (a *App) SpecAdd(arg SpecAddArg) (ResponseSpecAdd, error) {
 
 // SpecList 获取选项规格列表
 // https://op.jinritemai.com/docs/api-docs/14/64
-func (a *App) SpecList() ([]ResponseSpecList, error) {
-	var body []ResponseSpecList
+func (a *App) SpecList() ([]spec.ResponseSpecList, error) {
+	var body []spec.ResponseSpecList
 	if err := a.base.NewRequest("spec.list", nil, &body); err != nil {
 		return body, err
 	}
@@ -94,9 +99,25 @@ func (a *App) SpecList() ([]ResponseSpecList, error) {
 
 // SpecDetail 获取选项规格详情
 // https://op.jinritemai.com/docs/api-docs/14/63
-func (a *App) SpecDetail(id SpecID) (ResponseSpecDetail, error) {
-	var body ResponseSpecDetail
+func (a *App) SpecDetail(id spec.SpecID) (spec.ResponseSpecDetail, error) {
+	var body spec.ResponseSpecDetail
 	if err := a.base.NewRequest("spec.specDetail", ParamMap{"id": id}, &body); err != nil {
+		return body, err
+	}
+	return body, nil
+}
+
+// SpecDel 删除选项规格
+// https://op.jinritemai.com/docs/api-docs/14/65
+func (a *App) SpecDel(id spec.SpecID) error {
+	return a.base.NewRequest("spec.del", ParamMap{"id": id}, nil)
+}
+
+// SkuAdd 添加SKU
+// https://op.jinritemai.com/docs/api-docs/14/64
+func (a *App) SkuAdd(arg spec.SpecAddArg) (spec.ResponseSpecAdd, error) {
+	var body spec.ResponseSpecAdd
+	if err := a.base.NewRequest("spec.add", arg, &body); err != nil {
 		return body, err
 	}
 	return body, nil
@@ -105,8 +126,8 @@ func (a *App) SpecDetail(id SpecID) (ResponseSpecDetail, error) {
 // SkuList 获取商品sku列表
 // id 分类id，如果不指则获取最顶级
 // https://op.jinritemai.com/docs/api-docs/14/82
-func (a *App) SkuList(ProductStrID string) ([]ResponseSkuList, error) {
-	var body []ResponseSkuList
+func (a *App) SkuList(ProductStrID string) ([]sku.ResponseSkuList, error) {
+	var body []sku.ResponseSkuList
 	if err := a.base.NewRequest("sku.list", ParamMap{"product_id": ProductStrID}, &body); err != nil {
 		return body, err
 	}

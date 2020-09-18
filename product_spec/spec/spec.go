@@ -1,4 +1,4 @@
-package shop_sdk_douyin
+package spec
 
 // SpecID 商品选项ID
 type SpecID uint32

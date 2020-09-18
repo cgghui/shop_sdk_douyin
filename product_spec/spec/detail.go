@@ -1,4 +1,9 @@
-package shop_sdk_douyin
+package spec
+
+import (
+	"github.com/cgghui/shop_sdk_douyin"
+	"github.com/cgghui/shop_sdk_douyin/product_spec/sku"
+)
 
 // 规格关系
 type PLeaf uint8
@@ -39,8 +44,8 @@ type ProductSpecPic struct {
 
 // ProductSpecPrice 商品选项<价格表>
 type ProductSpecPrice struct {
-	BaseSkuInfo     `mapstructure:",squash"`
-	SkuID           uint64       `mapstructure:"sku_id"`           // todo 目前还不知道这字段是什么意思
-	SpecDetailIDS   []uint64     `mapstructure:"spec_detail_ids"`  // 规格id 与 ProductSpec.ID 对应
-	SettlementPrice ProductPrice `mapstructure:"settlement_price"` // 结算价格
+	sku.BaseSkuInfo `mapstructure:",squash"`
+	SkuID           uint64                       `mapstructure:"sku_id"`           // todo 目前还不知道这字段是什么意思
+	SpecDetailIDS   []uint64                     `mapstructure:"spec_detail_ids"`  // 规格id 与 ProductSpec.ID 对应
+	SettlementPrice shop_sdk_douyin.ProductPrice `mapstructure:"settlement_price"` // 结算价格
 }

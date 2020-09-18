@@ -176,6 +176,9 @@ func (b *BaseApp) NewRequest(method string, postData interface{}, d interface{})
 	if ret.ErrNo != 0 || ret.Message != "success" {
 		return fmt.Errorf("response error %d %s", ret.ErrNo, ret.Message)
 	}
+	if d == nil {
+		return nil
+	}
 	return mapstructure.Decode(ret.Data, d)
 }
 

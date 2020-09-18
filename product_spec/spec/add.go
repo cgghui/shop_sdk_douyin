@@ -1,4 +1,4 @@
-package shop_sdk_douyin
+package spec
 
 import (
 	"errors"
