@@ -1,8 +1,10 @@
 package shop_sdk_douyin
 
 import (
-	"github.com/cgghui/shop_sdk_douyin/product_spec/sku"
-	"github.com/cgghui/shop_sdk_douyin/product_spec/spec"
+	"github.com/cgghui/shop_sdk_douyin/product"
+	"github.com/cgghui/shop_sdk_douyin/product/sku"
+	"github.com/cgghui/shop_sdk_douyin/product/spec"
+	"github.com/cgghui/shop_sdk_douyin/unit"
 )
 
 type App struct {
@@ -23,14 +25,14 @@ func (a *App) ShopBrandList() {
 
 // ProductList 获取商品列表
 // https://op.jinritemai.com/docs/api-docs/14/57
-func (a *App) ProductList(arg ProductListArg) (ResponseProductList, error) {
+func (a *App) ProductList(arg product.ArgList) (product.ResponseList, error) {
 	if arg.Size == 0 {
 		arg.Size = 10
 	}
 	if arg.CheckStatus == 0 {
-		arg.CheckStatus = PCheckPass
+		arg.CheckStatus = product.CheckPass
 	}
-	var body ResponseProductList
+	var body product.ResponseList
 	if err := a.base.NewRequest("product.list", arg, &body); err != nil {
 		return body, err
 	}
@@ -41,14 +43,14 @@ func (a *App) ProductList(arg ProductListArg) (ResponseProductList, error) {
 // strID 字符串格式的商品id
 // draft 是否从草稿加载 true从草稿加载 false不从草稿加载 默认false
 // https://op.jinritemai.com/docs/api-docs/14/56
-func (a *App) ProductDetail(ProductStrID string, draft ...bool) (ResponseProductDetail, error) {
+func (a *App) ProductDetail(ProductStrID unit.ProductID, draft ...bool) (product.ResponseDetail, error) {
 	dt := "false"
 	if len(draft) == 1 {
 		if draft[0] {
 			dt = "true"
 		}
 	}
-	var body ResponseProductDetail
+	var body product.ResponseDetail
 	err := a.base.NewRequest("product.detail", ParamMap{"product_id": ProductStrID, "show_draft": dt}, &body)
 	if err != nil {
 		return body, err
@@ -59,12 +61,12 @@ func (a *App) ProductDetail(ProductStrID string, draft ...bool) (ResponseProduct
 // ProductCategory 获取商品分类列表
 // id 分类id，如果不指则获取最顶级
 // https://op.jinritemai.com/docs/api-docs/14/58
-func (a *App) ProductCategory(id ...PCid) ([]ResponseProductCategory, error) {
-	cid := PCidTOP
+func (a *App) ProductCategory(id ...unit.ProductCID) ([]product.ResponseCategory, error) {
+	cid := unit.CidTOP
 	if len(id) == 1 {
 		cid = id[0]
 	}
-	var body []ResponseProductCategory
+	var body []product.ResponseCategory
 	if err := a.base.NewRequest("product.getGoodsCategory", ParamMap{"cid": cid}, &body); err != nil {
 		return body, err
 	}
@@ -73,14 +75,14 @@ func (a *App) ProductCategory(id ...PCid) ([]ResponseProductCategory, error) {
 
 // ProductAdd 添加商品
 // https://op.jinritemai.com/docs/api-docs/14/59
-func (a *App) ProductAdd(arg ProductAddArg) {
+func (a *App) ProductAdd(arg product.ArgAdd) {
 
 }
 
 // SpecAdd 添加选项规格
 // https://op.jinritemai.com/docs/api-docs/14/64
-func (a *App) SpecAdd(arg spec.SpecAddArg) (spec.ResponseSpecAdd, error) {
-	var body spec.ResponseSpecAdd
+func (a *App) SpecAdd(arg spec.ArgAdd) (spec.ResponseAdd, error) {
+	var body spec.ResponseAdd
 	if err := a.base.NewRequest("spec.add", arg, &body); err != nil {
 		return body, err
 	}
@@ -89,8 +91,8 @@ func (a *App) SpecAdd(arg spec.SpecAddArg) (spec.ResponseSpecAdd, error) {
 
 // SpecList 获取选项规格列表
 // https://op.jinritemai.com/docs/api-docs/14/64
-func (a *App) SpecList() ([]spec.ResponseSpecList, error) {
-	var body []spec.ResponseSpecList
+func (a *App) SpecList() ([]spec.ResponseList, error) {
+	var body []spec.ResponseList
 	if err := a.base.NewRequest("spec.list", nil, &body); err != nil {
 		return body, err
 	}
@@ -99,8 +101,8 @@ func (a *App) SpecList() ([]spec.ResponseSpecList, error) {
 
 // SpecDetail 获取选项规格详情
 // https://op.jinritemai.com/docs/api-docs/14/63
-func (a *App) SpecDetail(id spec.SpecID) (spec.ResponseSpecDetail, error) {
-	var body spec.ResponseSpecDetail
+func (a *App) SpecDetail(id unit.SpecID) (spec.ResponseDetail, error) {
+	var body spec.ResponseDetail
 	if err := a.base.NewRequest("spec.specDetail", ParamMap{"id": id}, &body); err != nil {
 		return body, err
 	}
@@ -109,14 +111,14 @@ func (a *App) SpecDetail(id spec.SpecID) (spec.ResponseSpecDetail, error) {
 
 // SpecDel 删除选项规格
 // https://op.jinritemai.com/docs/api-docs/14/65
-func (a *App) SpecDel(id spec.SpecID) error {
+func (a *App) SpecDel(id unit.SpecID) error {
 	return a.base.NewRequest("spec.del", ParamMap{"id": id}, nil)
 }
 
 // SkuAdd 添加SKU
 // https://op.jinritemai.com/docs/api-docs/14/64
-func (a *App) SkuAdd(arg spec.SpecAddArg) (spec.ResponseSpecAdd, error) {
-	var body spec.ResponseSpecAdd
+func (a *App) SkuAdd(arg sku.ArgAdd) (spec.ResponseAdd, error) {
+	var body spec.ResponseAdd
 	if err := a.base.NewRequest("spec.add", arg, &body); err != nil {
 		return body, err
 	}
@@ -126,8 +128,8 @@ func (a *App) SkuAdd(arg spec.SpecAddArg) (spec.ResponseSpecAdd, error) {
 // SkuList 获取商品sku列表
 // id 分类id，如果不指则获取最顶级
 // https://op.jinritemai.com/docs/api-docs/14/82
-func (a *App) SkuList(ProductStrID string) ([]sku.ResponseSkuList, error) {
-	var body []sku.ResponseSkuList
+func (a *App) SkuList(ProductStrID unit.ProductID) ([]sku.ResponseList, error) {
+	var body []sku.ResponseList
 	if err := a.base.NewRequest("sku.list", ParamMap{"product_id": ProductStrID}, &body); err != nil {
 		return body, err
 	}

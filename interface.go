@@ -1,23 +1,25 @@
 package shop_sdk_douyin
 
 import (
-	"github.com/cgghui/shop_sdk_douyin/product_spec/sku"
-	"github.com/cgghui/shop_sdk_douyin/product_spec/spec"
+	"github.com/cgghui/shop_sdk_douyin/product"
+	"github.com/cgghui/shop_sdk_douyin/product/sku"
+	"github.com/cgghui/shop_sdk_douyin/product/spec"
+	"github.com/cgghui/shop_sdk_douyin/unit"
 )
 
 type ProductInterface interface {
-	ProductList(ProductListArg) (ResponseProductList, error)
-	ProductDetail(string, ...bool) (ResponseProductDetail, error)
-	ProductCategory(...PCid) ([]ResponseProductCategory, error)
-	SkuList(string) ([]sku.ResponseSkuList, error)
+	ProductList(product.ArgList) (product.ResponseList, error)
+	ProductDetail(unit.ProductID, ...bool) (product.ResponseDetail, error)
+	ProductCategory(...unit.ProductCID) ([]product.ResponseCategory, error)
+	SkuList(unit.ProductID) ([]sku.ResponseList, error)
 	ProductSpecInterface
 }
 
 type ProductSpecInterface interface {
-	SpecAdd(spec.SpecAddArg) (spec.ResponseSpecAdd, error)
-	SpecList() ([]spec.ResponseSpecList, error)
-	SpecDetail(spec.SpecID) (spec.ResponseSpecDetail, error)
-	SpecDel(spec.SpecID) error
+	SpecAdd(spec.ArgAdd) (spec.ResponseAdd, error)
+	SpecList() ([]spec.ResponseList, error)
+	SpecDetail(id unit.SpecID) (spec.ResponseDetail, error)
+	SpecDel(unit.SpecID) error
 }
 
 // GetProduct 从App独立出商品操作管理方法
