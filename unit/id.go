@@ -18,3 +18,7 @@ func (p ProductID) GetProductID() ProductID {
 func (s SpecID) ToString() string {
 	return strconv.FormatUint(uint64(s), 10)
 }
+
+const SPE1 = "|"
+const SPE2 = "^"
+const SPE3 = ","

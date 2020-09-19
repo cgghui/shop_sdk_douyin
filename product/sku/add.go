@@ -4,119 +4,187 @@ import (
 	"errors"
 	"github.com/cgghui/shop_sdk_douyin/unit"
 	"log"
+	"strconv"
 	"strings"
 )
 
-type ResponseAdd interface {
+type ResponseAdd struct {
+	R interface{}
 }
+
+func (r ResponseAdd) Array() (ret []unit.SkuID, ok bool) {
+	if val, ok := r.R.([]interface{}); ok {
+		l := len(val)
+		ret = make([]unit.SkuID, l)
+		for i := 0; i < l; i++ {
+			ret[i] = unit.SkuID(val[i].(float64))
+		}
+		ok = true
+	} else {
+		ok = false
+	}
+	return
+}
+
+//func (r ResponseAdd) Map() (ret map[uint64]unit.SkuID, ok bool) {
+//	//ret, ok = r.R.(map[uint64]unit.SkuID)
+//	//if val, ok := r.R.(map[string]interface{}); ok {
+//	//	l := len(val)
+//	//	ret = make([]unit.SkuID, l)
+//	//	for i := 0; i < l; i++ {
+//	//		ret[i] = unit.SkuID(val[i].(float64))
+//	//	}
+//	//	ok = true
+//	//} else {
+//	//	ok = false
+//	//}
+//	//return
+//}
 
 // ArgAdd ProductAdd方法的参数
 type ArgAdd struct {
-	Info
-	ProductStrID    unit.ProductID `paramName:"product_id"`                // 商品id
-	OutSkuID        uint64         `paramName:"out_sku_id,optional"`       // 业务方自己的sku_id，唯一需为数字字符串，max = int64
-	SpecID          string         `paramName:"spec_id"`                   // 规格id，依赖/spec/list接口的返回
-	SettlementPrice unit.Price     `paramName:"settlement_price,optional"` // 结算价格 (单位 分)
-	SpecDetailIDS   string         `paramName:"spec_detail_ids"`           // 子规格id,最多3级,如 100041|150041|160041 （ 女款|白色|XL）
-	Multiple        bool           `paramName:"-"`
-	_id             []unit.SpecID  `paramName:"-"`
-	_ids            []string       `paramName:"-"`
+	ArgAddSKU
+	ProductStrID unit.ProductID `paramName:"product_id"`                         // 商品id
+	StockNum     string         `mapstructure:"stock_num" paramName:"stock_num"` // 库存余量
+	Price        string         `mapstructure:"price"`                           // 价格
+	Code         string         `mapstructure:"code" paramName:",optional"`      // 商家自定义的sku代码
+	params       []ArgAddSKU    `paramName:"-"`
 }
 
-func NewArgAdd(price float64, stock uint16, codes ...string) *ArgAdd {
-	code := ""
-	if len(codes) == 1 {
-		code = codes[0]
-	}
+type ArgAddInterface interface {
+	Build() (ArgAdd, error)
+	addSku(s *ArgAddSKU)
+}
+
+func NewArgAdd(product unit.Product) ArgAddInterface {
 	r := ArgAdd{
-		Info: Info{
-			StockNum: stock,
-			Price:    unit.PriceToYuan(price),
-			Code:     code,
-		},
-		_ids: make([]string, 0),
+		ProductStrID: product.GetProductID(),
+		params:       make([]ArgAddSKU, 0),
 	}
 	return &r
 }
 
+func (a *ArgAdd) addSku(s *ArgAddSKU) {
+	ss := *s
+	a.params = append(a.params, ss)
+}
+
 // Build 取出参数集
 func (a *ArgAdd) Build() (ArgAdd, error) {
-	if len(a._id) == 0 {
-		return ArgAdd{}, errors.New("SpecID empty")
+	if len(a.params) == 0 {
+		return ArgAdd{}, errors.New("empty SKU")
 	}
-	tmp := make([]string, len(a._id))
-	for i, val := range a._id {
-		tmp[i] = val.ToString()
+	l := len(a.params)
+	tmp := [7][]string{}
+	for i := 0; i < 7; i++ {
+		tmp[i] = make([]string, l)
 	}
-	a.SpecID = strings.Join(tmp, "|")
-	tmp = make([]string, 0)
-	for _, spec := range a._ids {
-		tmp = append(tmp, spec)
+	for i, param := range a.params {
+		tmp[0][i] = param.SpecID
+		tmp[1][i] = param.SpecDetailIDS
+		tmp[2][i] = param.OutSkuID
+		tmp[3][i] = param.Code
+		tmp[4][i] = strconv.FormatUint(uint64(param.StockNum), 10)
+		tmp[5][i] = strconv.FormatUint(uint64(param.Price), 10)
+		tmp[6][i] = param.SettlementPrice
 	}
-	if len(a._ids) > 1 {
-		a.Multiple = true
-	} else {
-		a.Multiple = false
-	}
-	a.SpecDetailIDS = strings.Join(tmp, "^")
-	a._id = nil
-	a._ids = nil
 	ret := *a
 	*a = ArgAdd{}
+	ret.ArgAddSKU.SpecID = strings.Join(tmp[0], unit.SPE1)
+	ret.ArgAddSKU.SpecDetailIDS = strings.Join(tmp[1], unit.SPE2)
+	ret.ArgAddSKU.OutSkuID = strings.Join(tmp[2], unit.SPE1)
+	if ret.ArgAddSKU.OutSkuID == unit.SPE1 {
+		ret.ArgAddSKU.OutSkuID = ""
+	}
+	ret.Code = strings.Join(tmp[3], unit.SPE1)
+	if ret.Code == unit.SPE1 {
+		ret.Code = ""
+	}
+	ret.StockNum = strings.Join(tmp[4], unit.SPE1)
+	ret.Price = strings.Join(tmp[5], unit.SPE1)
+	ret.ArgAddSKU.SettlementPrice = strings.Join(tmp[6], unit.SPE1)
+	if ret.ArgAddSKU.SettlementPrice == unit.SPE1 {
+		ret.ArgAddSKU.SettlementPrice = ""
+	}
 	return ret, nil
 }
 
-// SetProduct 设置SKU归属商品
-func (a *ArgAdd) SetProduct(product unit.Product) *ArgAdd {
-	a.ProductStrID = product.GetProductID()
-	return a
+/////////////////////////////////
+
+type ArgAddBuild struct {
+	ArgAddSKU
 }
 
-// SetOutSkuID 业务方自己的sku_id，唯一需为数字字符串，max = int64
-func (a *ArgAdd) SetOutSkuID(id uint64) *ArgAdd {
-	a.OutSkuID = id
-	return a
+type ArgAddBuildInterface interface {
+	Box() ArgAddSKUInterface
 }
 
-// SetSpecID 设置商品主项规格id
-func (a *ArgAdd) SetSpecID(spec unit.ProductSpec) *SpecBox {
-	specID := spec.GetProductSpecID()
-	a._id = append(a._id, specID)
-	return &SpecBox{a: a, x: spec, id: specID, ss: make([]string, 0)}
+func NewArgAddSKU(spec unit.ProductSpec) ArgAddBuildInterface {
+	return &ArgAddBuild{
+		ArgAddSKU: ArgAddSKU{
+			spec:   spec,
+			SpecID: spec.GetProductSpecID().ToString(),
+		},
+	}
 }
 
-type SpecBox struct {
-	a  *ArgAdd
-	x  unit.ProductSpec
-	id unit.SpecID
-	ss []string
+func (s *ArgAddBuild) Box() ArgAddSKUInterface {
+	ss := *s
+	return &ss.ArgAddSKU
 }
 
-func (s *SpecBox) Add(arg ...unit.SpecID) *SpecBox {
-	l1 := s.x.Len()
+///////////////
+
+type ArgAddSKU struct {
+	Info            `paramName:"-"`
+	OutSkuID        string           `paramName:"out_sku_id,optional"`       // 业务方自己的sku_id，唯一需为数字字符串，max = int64
+	SpecID          string           `paramName:"spec_id"`                   // 规格id，依赖/spec/list接口的返回
+	SpecDetailIDS   string           `paramName:"spec_detail_ids"`           // 子规格id,最多3级,如 100041|150041|160041（ 女款|白色|XL）
+	SettlementPrice string           `paramName:"settlement_price,optional"` // 结算价格 (单位 分)
+	spec            unit.ProductSpec `paramName:"-"`
+}
+
+type ArgAddSKUInterface interface {
+	SetStock(uint16) *ArgAddSKU
+	SetPrice(float64) *ArgAddSKU
+	SetOutSkuID(uint64) *ArgAddSKU
+	SetCode(string) *ArgAddSKU
+	Push(ArgAddInterface, ...unit.SpecID)
+}
+
+func (s *ArgAddSKU) SetStock(n uint16) *ArgAddSKU {
+	s.StockNum = n
+	return s
+}
+
+func (s *ArgAddSKU) SetPrice(n float64) *ArgAddSKU {
+	s.Price = unit.PriceToYuan(n)
+	return s
+}
+
+func (s *ArgAddSKU) SetOutSkuID(id uint64) *ArgAddSKU {
+	s.OutSkuID = strconv.FormatUint(id, 10)
+	return s
+}
+
+func (s *ArgAddSKU) SetCode(c string) *ArgAddSKU {
+	s.Code = c
+	return s
+}
+
+func (s *ArgAddSKU) Push(box ArgAddInterface, arg ...unit.SpecID) {
+	l1 := s.spec.Len()
 	l2 := len(arg)
-	if s.x.Len() != len(arg) {
+	if s.spec.Len() != len(arg) {
 		log.Panicf("spec len %d, arg len %d. arg len == spec len", l1, l2)
 	}
 	tmp := make([]string, l2)
 	for i := 0; i < l2; i++ {
-		if !s.x.HasSub(i, arg[i]) {
-			log.Panicf("arg %d values: %v", i, s.x.GetSub(i))
+		if !s.spec.HasSub(i, arg[i]) {
+			log.Panicf("arg %d values: %v", i, s.spec.GetSub(i))
 		}
 		tmp[i] = arg[i].ToString()
 	}
-	result := strings.Join(tmp, "|")
-	for _, ss := range s.ss {
-		if ss == result {
-			log.Panicf("result %s repeat", result)
-		}
-	}
-	s.ss = append(s.ss, result)
-	return s
-}
-
-func (s *SpecBox) Done() {
-	tmp := *s
-	tmp.a._ids = append(s.a._ids, tmp.ss...)
-	*s = SpecBox{}
+	s.SpecDetailIDS = strings.Join(tmp, unit.SPE1)
+	box.addSku(s)
 }

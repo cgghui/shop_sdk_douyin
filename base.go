@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/cgghui/shop_sdk_douyin/unit"
 	"github.com/mitchellh/mapstructure"
 	"net/http"
 	"net/url"
@@ -118,46 +119,48 @@ func ToParamMap(data interface{}, ret ...*ParamMap) ParamMap {
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		x := v.Field(i)
-		val := ""
-		switch x.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			val = strconv.FormatInt(x.Int(), 10)
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			val = strconv.FormatUint(x.Uint(), 10)
-		case reflect.String:
-			val = x.String()
-		case reflect.Struct:
-			if f.Name == f.Type.Name() {
-				ToParamMap(x, &r)
-			}
-		case reflect.Bool:
-			if x.Bool() {
-				val = "true"
-			} else {
-				val = "false"
-			}
-		}
 		// tag 结构体后的标记 n标记名称 o标记参数
 		tag := f.Tag.Get("paramName")
 		n := ""
 		o := ""
-		if strings.Index(tag, ",") == -1 {
+		if strings.Index(tag, unit.SPE3) == -1 {
 			n = tag
 		} else {
-			x := strings.Split(tag, ",")
+			x := strings.Split(tag, unit.SPE3)
 			n = x[0]
 			o = x[1]
 		}
-		if n != "-" && x.Kind() != reflect.Struct {
-			if n == "" {
-				n = strings.ToLower(f.Name)
+		if n != "-" {
+			val := ""
+			switch x.Kind() {
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				val = strconv.FormatInt(x.Int(), 10)
+			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+				val = strconv.FormatUint(x.Uint(), 10)
+			case reflect.String:
+				val = x.String()
+			case reflect.Struct:
+				if f.Name == f.Type.Name() {
+					ToParamMap(x, &r)
+				}
+			case reflect.Bool:
+				if x.Bool() {
+					val = "true"
+				} else {
+					val = "false"
+				}
 			}
-			switch o {
-			case "":
-				r[n] = val
-			case "optional":
-				if val != "" && val != "0" {
+			if x.Kind() != reflect.Struct {
+				if n == "" {
+					n = strings.ToLower(f.Name)
+				}
+				switch o {
+				case "":
 					r[n] = val
+				case "optional":
+					if val != "" && val != "0" {
+						r[n] = val
+					}
 				}
 			}
 		}
@@ -222,6 +225,10 @@ func (b *BaseApp) NewRequest(method string, postData interface{}, d interface{})
 	if d == nil {
 		return nil
 	}
+	if reflect.TypeOf(d).Elem().Kind() == reflect.Interface {
+		reflect.ValueOf(d).Elem().Set(reflect.ValueOf(ret.Data))
+		return nil
+	}
 	return mapstructure.Decode(ret.Data, d)
 }
 
@@ -240,7 +247,7 @@ func Sign(param ParamMap, secret string) string {
 		for i, k := range ks {
 			ks[i] = fmt.Sprintf(`"%v":"%v"`, k, paramJSON[k])
 		}
-		param["param_json"] = "{" + strings.Join(ks, ",") + "}"
+		param["param_json"] = "{" + strings.Join(ks, unit.SPE3) + "}"
 	}
 	signStr := ""
 	for _, k := range SortKeyList {

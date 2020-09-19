@@ -2,6 +2,7 @@ package spec
 
 import (
 	"errors"
+	"github.com/cgghui/shop_sdk_douyin/unit"
 	"strings"
 )
 
@@ -30,7 +31,7 @@ func (s *ArgAdd) Build() (ArgAdd, error) {
 	for _, c := range s._specs {
 		tmp = append(tmp, c.join())
 	}
-	s.Specs = strings.Join(tmp, "^")
+	s.Specs = strings.Join(tmp, unit.SPE2)
 	s._specs = nil
 	x := *s
 	*s = ArgAdd{}
@@ -67,5 +68,5 @@ func (p *CreateBox) Done() {
 
 // join 将盒子里的数据拼合成字符串
 func (p CreateBox) join() string {
-	return p.name + "|" + strings.Join(p.sub, ",")
+	return p.name + unit.SPE1 + strings.Join(p.sub, unit.SPE3)
 }

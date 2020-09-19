@@ -1,6 +1,7 @@
 package product
 
 import (
+	"github.com/cgghui/shop_sdk_douyin/unit"
 	"strings"
 )
 
@@ -32,7 +33,7 @@ func (p Pic) Distinct() Pic {
 
 // JoinString 将图片拼合抖音规定的格式
 func (p Pic) JoinString() string {
-	return strings.Join(p.Distinct(), "|")
+	return strings.Join(p.Distinct(), unit.SPE1)
 }
 
 /////////////////////////////////////////////////////////////////////
