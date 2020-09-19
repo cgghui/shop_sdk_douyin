@@ -14,7 +14,7 @@ type ResponseAdd struct {
 type ArgAdd struct {
 	Name   string
 	Specs  string
-	_specs []CreateBox // 规格盒子阵列
+	_specs []CreateBox `paramName:"-"` // 规格盒子阵列
 }
 
 func NewArgAdd(name string) ArgAdd {

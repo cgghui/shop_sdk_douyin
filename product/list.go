@@ -44,3 +44,7 @@ type Product struct {
 	CreateTime      string          `mapstructure:"create_time"`
 	UpdateTime      string          `mapstructure:"update_time"`
 }
+
+func (p Product) GetProductID() unit.ProductID {
+	return p.ProductStrID
+}

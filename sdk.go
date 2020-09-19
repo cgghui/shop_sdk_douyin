@@ -117,9 +117,9 @@ func (a *App) SpecDel(id unit.SpecID) error {
 
 // SkuAdd 添加SKU
 // https://op.jinritemai.com/docs/api-docs/14/64
-func (a *App) SkuAdd(arg sku.ArgAdd) (spec.ResponseAdd, error) {
-	var body spec.ResponseAdd
-	if err := a.base.NewRequest("spec.add", arg, &body); err != nil {
+func (a *App) SkuAdd(arg sku.ArgAdd) (unit.SkuID, error) {
+	var body unit.SkuID
+	if err := a.base.NewRequest("sku.add", arg, &body); err != nil {
 		return body, err
 	}
 	return body, nil

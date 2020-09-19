@@ -1,7 +1,9 @@
 package shop_sdk_douyin
 
 import (
+	"github.com/cgghui/shop_sdk_douyin/product/sku"
 	"github.com/cgghui/shop_sdk_douyin/product/spec"
+	"github.com/cgghui/shop_sdk_douyin/unit"
 	"sync"
 	"testing"
 )
@@ -11,7 +13,7 @@ const (
 	TestAppSecret = "25dd8e74-216e-42cb-8012-7d3bba90d3bd"
 )
 
-var app = NewBaseApp(TestAppKey, TestAppSecret).NewAccessTokenMust("3c1691ab-0b23-4656-bfc2-32b65d1d1276")
+var app = NewBaseApp(TestAppKey, TestAppSecret).NewAccessTokenMust("b64614cd-03a6-48d9-9808-d160959e3f8f")
 
 func TestSpecManage(t *testing.T) {
 
@@ -68,4 +70,45 @@ func TestSpecAdd(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("【删除】spec id %d 删除成功\n", ret.ID)
+}
+
+// TestSkuAdd 创建商品的SKU
+func TestSkuAdd(t *testing.T) {
+
+	t.Logf("AccessToken: %v\n\n", app.AccessToken)
+
+	goods, err := app.ProductDetail("3436456108863134126")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("【商品信息】%+v\n\n", goods)
+
+	// 获取规格列表
+	list, err := app.SpecList()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("【规格列表】%+v\n\n", list)
+
+	// 必须取一组规格 76671573 为规格ID
+	spec, err := app.SpecDetail(unit.SpecID(76671573))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// 构建参数
+	arg := sku.NewArgAdd(16, 888)
+	arg.SetProduct(goods.GetProductID())
+	sku := arg.SetSpecID(spec)
+	sku.Add(716177728, 716177734) // 组合 100ml+白色
+	//sku.Add(716177728, 716177735) // 组合 300ml+黄色
+	// 调用Done后sku这个对象将被重置或销毁，之后如果试图再次调用sku.Add将会引起panic
+	// 一切Add工作，请在Done之前完成
+	sku.Done()
+	t.Logf("【规格信息】%+v\n\n", spec)
+	argObj, _ := arg.Build()
+	t.Logf("【传递参数】%+v\n\n", argObj)
+	t.Logf("【传递参数】%+v\n\n", ToParamMap(argObj))
+	ret, err := app.SkuAdd(argObj)
+	t.Logf("【执行结果】%+v %v\n\n", ret, err)
 }

@@ -97,10 +97,24 @@ type BaseResp struct {
 	Message string      `json:"message"`
 }
 
-func toParamMap(data interface{}) ParamMap {
-	r := ParamMap{}
-	t := reflect.TypeOf(data)
-	v := reflect.ValueOf(data)
+func ToParamMap(data interface{}, ret ...*ParamMap) ParamMap {
+	var (
+		r ParamMap
+		t reflect.Type
+		v reflect.Value
+	)
+	if len(ret) == 0 {
+		r = ParamMap{}
+	} else {
+		r = *ret[0]
+	}
+	if val, ok := data.(reflect.Value); ok {
+		t = val.Type()
+		v = val
+	} else {
+		t = reflect.TypeOf(data)
+		v = reflect.ValueOf(data)
+	}
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		x := v.Field(i)
@@ -112,6 +126,10 @@ func toParamMap(data interface{}) ParamMap {
 			val = strconv.FormatUint(x.Uint(), 10)
 		case reflect.String:
 			val = x.String()
+		case reflect.Struct:
+			if f.Name == f.Type.Name() {
+				ToParamMap(x, &r)
+			}
 		case reflect.Bool:
 			if x.Bool() {
 				val = "true"
@@ -119,12 +137,37 @@ func toParamMap(data interface{}) ParamMap {
 				val = "false"
 			}
 		}
-		if n := f.Tag.Get("paramName"); n == "" || n == "-" {
-			r[strings.ToLower(f.Name)] = val
+		// tag 结构体后的标记 n标记名称 o标记参数
+		tag := f.Tag.Get("paramName")
+		n := ""
+		o := ""
+		if strings.Index(tag, ",") == -1 {
+			n = tag
 		} else {
-			r[n] = val
+			x := strings.Split(tag, ",")
+			n = x[0]
+			o = x[1]
+		}
+		if n != "-" && x.Kind() != reflect.Struct {
+			if n == "" {
+				n = strings.ToLower(f.Name)
+			}
+			switch o {
+			case "":
+				r[n] = val
+			case "optional":
+				if val != "" && val != "0" {
+					r[n] = val
+				}
+			}
 		}
 	}
+	// 递归返回
+	if len(ret) != 0 {
+		*ret[0] = r
+		return nil
+	}
+	// 最终返回
 	return r
 }
 
@@ -139,7 +182,7 @@ func (b *BaseApp) NewRequest(method string, postData interface{}, d interface{})
 				}
 			}
 		} else {
-			dat = toParamMap(postData)
+			dat = ToParamMap(postData)
 		}
 	}
 	params := ParamMap{

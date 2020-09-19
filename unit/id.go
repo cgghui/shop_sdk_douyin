@@ -1,12 +1,20 @@
 package unit
 
-// ProductID 商品ID
-type ProductID string
+import "strconv"
 
-// ProductCID 商品分类id
-type ProductCID uint16
+type (
+	ProductID  string // 商品ID
+	ProductCID uint16 // 商品分类id
+	SpecID     uint64 // 规格选项ID
+	SkuID      uint64 // SKU ID
+)
 
-const CidTOP ProductCID = 0
+const CidTOP ProductCID = 0 // 商品的最顶级分类
 
-// SpecID 规格选项ID
-type SpecID uint32
+func (p ProductID) GetProductID() ProductID {
+	return p
+}
+
+func (s SpecID) ToString() string {
+	return strconv.FormatUint(uint64(s), 10)
+}
