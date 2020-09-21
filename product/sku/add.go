@@ -8,10 +8,12 @@ import (
 	"strings"
 )
 
+// ResponseAdd SkuAdd的响应结果
 type ResponseAdd struct {
 	R interface{}
 }
 
+// Result 处理返回结果
 func (r ResponseAdd) Result() (ret map[uint64]unit.SkuID, has bool) {
 	switch val := r.R.(type) {
 	case []interface{}:
@@ -39,6 +41,7 @@ func (r ResponseAdd) Result() (ret map[uint64]unit.SkuID, has bool) {
 }
 
 // ArgAdd ProductAdd方法的参数
+// 请不要直接字面调用，须要通过NewArgAdd方法进行调用
 type ArgAdd struct {
 	ArgAddSKU
 	ProductStrID unit.ProductID `paramName:"product_id"`                         // 商品id
@@ -53,6 +56,7 @@ type ArgAddInterface interface {
 	addSku(s *ArgAddSKU)
 }
 
+// NewArgAdd ProductAdd方法的参数实例
 func NewArgAdd(product unit.Product) ArgAddInterface {
 	r := ArgAdd{
 		ProductStrID: product.GetProductID(),
@@ -61,6 +65,7 @@ func NewArgAdd(product unit.Product) ArgAddInterface {
 	return &r
 }
 
+// addSku 将压入参数对象
 func (a *ArgAdd) addSku(s *ArgAddSKU) {
 	ss := *s
 	a.params = append(a.params, ss)
@@ -125,6 +130,7 @@ func NewArgAddSKU(spec unit.ProductSpec) ArgAddBuildInterface {
 	}
 }
 
+// Box 创建一个sku盒子
 func (s *ArgAddBuild) Box() ArgAddSKUInterface {
 	ss := *s
 	return &ss.ArgAddSKU
@@ -149,26 +155,34 @@ type ArgAddSKUInterface interface {
 	Push(ArgAddInterface, ...unit.SpecID)
 }
 
+// SetStock 设定库存
 func (s *ArgAddSKU) SetStock(n uint16) *ArgAddSKU {
 	s.StockNum = n
 	return s
 }
 
+// SetPrice 设定价格 以元为单位
 func (s *ArgAddSKU) SetPrice(n float64) *ArgAddSKU {
 	s.Price = unit.PriceToYuan(n)
 	return s
 }
 
+// SetOutSkuID 设定商户自己的sku id
+// 这里须要注意的是，如果设定了该值，那么返回结果中的key部就是该id，与val对应（抖音小店的sku）；
+// 如果没有设定，key部将是从0开始逐一递增的自然数
 func (s *ArgAddSKU) SetOutSkuID(id uint64) *ArgAddSKU {
 	s.OutSkuID = strconv.FormatUint(id, 10)
 	return s
 }
 
+// SetCode 设定商品编码
+// 这个和OutSkuID不同的是，它可以使用是字符串
 func (s *ArgAddSKU) SetCode(c string) *ArgAddSKU {
 	s.Code = c
 	return s
 }
 
+// Push 将sku盒子推入ArgAdd.params阵列
 func (s *ArgAddSKU) Push(box ArgAddInterface, arg ...unit.SpecID) {
 	l1 := s.spec.Len()
 	l2 := len(arg)

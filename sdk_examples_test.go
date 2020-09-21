@@ -15,7 +15,8 @@ const (
 
 var app = NewBaseApp(TestAppKey, TestAppSecret).NewAccessTokenMust("b64614cd-03a6-48d9-9808-d160959e3f8f")
 
-func TestSpecManage(t *testing.T) {
+// TestExamplesSpecManage 商品规格列表
+func TestExamplesSpecManage(t *testing.T) {
 
 	// 按商品模块取得方法集
 	productSpec := GetProductSpec(app)
@@ -42,8 +43,8 @@ func TestSpecManage(t *testing.T) {
 	t.Logf("%+v", list)
 }
 
-// TestSpecAdd 创建商品的规格选项
-func TestSpecAdd(t *testing.T) {
+// TestExamplesSpecAdd 创建商品的规格选项
+func TestExamplesSpecAdd(t *testing.T) {
 
 	// 按商品模块取得方法集
 	productSpec := GetProductSpec(app)
@@ -103,9 +104,9 @@ func TestSkuAdd(t *testing.T) {
 	// 如果使用其它规格，则须要再实例一个sku.NewArgAddSKU
 	sss := sku.NewArgAddSKU(specObj) // sku specs
 	// 组合 规格:76671573 100ml+白色 价格16元 库存18件
-	sss.Box().SetOutSkuID(7).SetPrice(16).SetStock(18).Push(arg, 716177728, 716177734)
+	sss.Box().SetPrice(16).SetStock(18).Push(arg, 716177728, 716177734)
 	// 组合 规格:76671573 300ml+黄色 价格16元 库存18件
-	sss.Box().SetOutSkuID(8).SetPrice(16).SetStock(18).Push(arg, 716177728, 716177735)
+	sss.Box().SetPrice(16).SetStock(18).Push(arg, 716177728, 716177735)
 
 	t.Logf("【规格信息】%+v\n\n", specObj)
 	argObj, _ := arg.Build()
@@ -115,6 +116,5 @@ func TestSkuAdd(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	r, ok := ret.MapValues()
-	t.Logf("【执行结果】%+v %v\n\n", r, ok)
+	t.Logf("【执行结果】%+v\n\n", ret)
 }
