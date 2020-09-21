@@ -12,34 +12,31 @@ type ResponseAdd struct {
 	R interface{}
 }
 
-func (r ResponseAdd) Array() (ret []unit.SkuID, ok bool) {
-	if val, ok := r.R.([]interface{}); ok {
-		l := len(val)
-		ret = make([]unit.SkuID, l)
-		for i := 0; i < l; i++ {
-			ret[i] = unit.SkuID(val[i].(float64))
+func (r ResponseAdd) Result() (ret map[uint64]unit.SkuID, has bool) {
+	switch val := r.R.(type) {
+	case []interface{}:
+		{
+			l := len(val)
+			ret = make(map[uint64]unit.SkuID, l)
+			for i := 0; i < l; i++ {
+				ret[uint64(i)] = unit.SkuID(val[i].(float64))
+			}
+			has =
+				true
 		}
-		ok = true
-	} else {
-		ok = false
+	case map[string]interface{}:
+		{
+			l := len(val)
+			ret = make(map[uint64]unit.SkuID, l)
+			for k, v := range val {
+				id, _ := strconv.ParseUint(k, 10, 64)
+				ret[id] = unit.SkuID(v.(float64))
+			}
+			has = true
+		}
 	}
 	return
 }
-
-//func (r ResponseAdd) Map() (ret map[uint64]unit.SkuID, ok bool) {
-//	//ret, ok = r.R.(map[uint64]unit.SkuID)
-//	//if val, ok := r.R.(map[string]interface{}); ok {
-//	//	l := len(val)
-//	//	ret = make([]unit.SkuID, l)
-//	//	for i := 0; i < l; i++ {
-//	//		ret[i] = unit.SkuID(val[i].(float64))
-//	//	}
-//	//	ok = true
-//	//} else {
-//	//	ok = false
-//	//}
-//	//return
-//}
 
 // ArgAdd ProductAdd方法的参数
 type ArgAdd struct {

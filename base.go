@@ -42,7 +42,7 @@ type BaseApp struct {
 
 // NewBaseApp 实例化基础应用
 func NewBaseApp(k, s string) *BaseApp {
-	return &BaseApp{Key: k, Secret: s}
+	return &BaseApp{Key: k, Secret: s, gatewayURL: GatewayURL}
 }
 
 // SetGatewayURL 重置抖音小店网关地址
@@ -98,27 +98,33 @@ type BaseResp struct {
 	Message string      `json:"message"`
 }
 
+// ToParamMap 将任意struct转换为成ParamMap
+// paramName "-" 这个字段将被忽略，须要注意的是如果字段是bool，那么将被转换成字符串
+// 类型的"true"和"false"
 func ToParamMap(data interface{}, ret ...*ParamMap) ParamMap {
 	var (
-		r ParamMap
+		r ParamMap // 最终结果
 		t reflect.Type
 		v reflect.Value
 	)
 	if len(ret) == 0 {
-		r = ParamMap{}
+		r = ParamMap{} // 非递归
 	} else {
-		r = *ret[0]
+		r = *ret[0] // 递归时 将以指针式进行赋值
 	}
 	if val, ok := data.(reflect.Value); ok {
+		// 递归
 		t = val.Type()
 		v = val
 	} else {
+		// 非递归
 		t = reflect.TypeOf(data)
 		v = reflect.ValueOf(data)
 	}
+	// 遍历结构体字段
 	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i)
-		x := v.Field(i)
+		f := t.Field(i) // 字段
+		x := v.Field(i) // 值
 		// tag 结构体后的标记 n标记名称 o标记参数
 		tag := f.Tag.Get("paramName")
 		n := ""
@@ -130,19 +136,28 @@ func ToParamMap(data interface{}, ret ...*ParamMap) ParamMap {
 			n = x[0]
 			o = x[1]
 		}
+		// 忽略该字段
 		if n != "-" {
 			val := ""
 			switch x.Kind() {
+			// int
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 				val = strconv.FormatInt(x.Int(), 10)
+			// uint
 			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 				val = strconv.FormatUint(x.Uint(), 10)
+			// float
+			case reflect.Float32, reflect.Float64:
+				val = strconv.FormatFloat(x.Float(), 'f', -1, 64)
+			// string
 			case reflect.String:
 				val = x.String()
+			// struct
 			case reflect.Struct:
 				if f.Name == f.Type.Name() {
 					ToParamMap(x, &r)
 				}
+			// bool
 			case reflect.Bool:
 				if x.Bool() {
 					val = "true"
@@ -206,7 +221,7 @@ func (b *BaseApp) NewRequest(method string, postData interface{}, d interface{})
 		}
 	}
 	body := strings.NewReader(query.Encode())
-	req, err := http.NewRequest("POST", GatewayURL+"/"+strings.ReplaceAll(method, ".", "/"), body)
+	req, err := http.NewRequest("POST", b.gatewayURL+"/"+strings.ReplaceAll(method, ".", "/"), body)
 	if err != nil {
 		return err
 	}

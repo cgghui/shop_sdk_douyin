@@ -1,6 +1,7 @@
 package shop_sdk_douyin
 
 import (
+	"errors"
 	"github.com/cgghui/shop_sdk_douyin/product"
 	"github.com/cgghui/shop_sdk_douyin/product/sku"
 	"github.com/cgghui/shop_sdk_douyin/product/spec"
@@ -117,12 +118,16 @@ func (a *App) SpecDel(id unit.SpecID) error {
 
 // SkuAdd 添加SKU
 // https://op.jinritemai.com/docs/api-docs/14/64
-func (a *App) SkuAdd(arg sku.ArgAdd) (sku.ResponseAdd, error) {
+func (a *App) SkuAdd(arg sku.ArgAdd) (map[uint64]unit.SkuID, error) {
 	var body interface{}
 	if err := a.base.NewRequest("sku.addAll", arg, &body); err != nil {
-		return sku.ResponseAdd{}, err
+		return nil, err
 	}
-	return sku.ResponseAdd{R: body}, nil
+	ret, ok := sku.ResponseAdd{R: body}.Result()
+	if ok {
+		return ret, nil
+	}
+	return nil, errors.New("response data unable to parse")
 }
 
 // SkuList 获取商品sku列表

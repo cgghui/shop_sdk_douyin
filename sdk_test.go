@@ -103,9 +103,9 @@ func TestSkuAdd(t *testing.T) {
 	// 如果使用其它规格，则须要再实例一个sku.NewArgAddSKU
 	sss := sku.NewArgAddSKU(specObj) // sku specs
 	// 组合 规格:76671573 100ml+白色 价格16元 库存18件
-	sss.Box().SetPrice(16).SetStock(18).Push(arg, 716177728, 716177734)
+	sss.Box().SetOutSkuID(7).SetPrice(16).SetStock(18).Push(arg, 716177728, 716177734)
 	// 组合 规格:76671573 300ml+黄色 价格16元 库存18件
-	sss.Box().SetPrice(16).SetStock(18).Push(arg, 716177728, 716177735)
+	sss.Box().SetOutSkuID(8).SetPrice(16).SetStock(18).Push(arg, 716177728, 716177735)
 
 	t.Logf("【规格信息】%+v\n\n", specObj)
 	argObj, _ := arg.Build()
@@ -115,6 +115,6 @@ func TestSkuAdd(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	r, ok := ret.Array()
+	r, ok := ret.MapValues()
 	t.Logf("【执行结果】%+v %v\n\n", r, ok)
 }
