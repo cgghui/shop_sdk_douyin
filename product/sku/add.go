@@ -118,7 +118,7 @@ type ArgAddBuild struct {
 }
 
 type ArgAddBuildInterface interface {
-	Box() ArgAddSKUInterface
+	NewBox() ArgAddSKUInterface
 }
 
 func NewArgAddSKU(spec unit.ProductSpec) ArgAddBuildInterface {
@@ -131,7 +131,7 @@ func NewArgAddSKU(spec unit.ProductSpec) ArgAddBuildInterface {
 }
 
 // Box 创建一个sku盒子
-func (s *ArgAddBuild) Box() ArgAddSKUInterface {
+func (s *ArgAddBuild) NewBox() ArgAddSKUInterface {
 	ss := *s
 	return &ss.ArgAddSKU
 }
