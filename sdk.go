@@ -19,7 +19,7 @@ type App struct {
 	Error        error  `mapstructure:"-"`
 }
 
-// ShopBrandList 获权店铺列表
+// ShopBrandList 获取店铺的已授权品牌列表
 // https://op.jinritemai.com/docs/api-docs/13/54
 func (a *App) ShopBrandList() {
 }
@@ -98,7 +98,7 @@ func (a *App) ProductAdd(arg product.ArgAdd) (product.Product, error) {
 
 // ProductEdit 编辑商品
 // 编辑商品的参数虽与ProductAdd共用，但须要使用product.NewArgEdit方法进行实例
-// https://op.jinritemai.com/docs/api-docs/14/59
+// https://op.jinritemai.com/docs/api-docs/14/60
 func (a *App) ProductEdit(arg product.ArgAdd) error {
 	var body interface{}
 	if err := a.base.NewRequest("product.edit", arg, &body); err != nil {
@@ -108,6 +108,15 @@ func (a *App) ProductEdit(arg product.ArgAdd) error {
 		return nil
 	}
 	return errors.New("edit fail")
+}
+
+// ProductDel 删除商品
+// https://op.jinritemai.com/docs/api-docs/14/61
+func (a *App) ProductDel(id unit.ProductID) error {
+	if err := a.base.NewRequest("product.del", ParamMap{"product_id": id}, nil); err != nil {
+		return err
+	}
+	return nil
 }
 
 // SpecAdd 添加选项规格

@@ -85,21 +85,21 @@ func TestExampleSkuAdd(t *testing.T) {
 
 	t.Logf("AccessToken: %v\n\n", app.AccessToken)
 
-	goods, err := app.ProductDetail(TestGoodsID)
+	goods, err := GetProduct(app).ProductDetail(TestGoodsID)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("【商品信息】%+v\n\n", goods)
 
 	// 获取规格列表
-	list, err := app.SpecList()
+	list, err := GetProductSpec(app).SpecList()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("【规格列表】%+v\n\n", list)
 
 	// 必须取一组规格 76671573 为规格ID
-	specObj, err := app.SpecDetail(unit.SpecID(76671573))
+	specObj, err := GetProductSpec(app).SpecDetail(unit.SpecID(76671573))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -119,7 +119,7 @@ func TestExampleSkuAdd(t *testing.T) {
 	argObj, _ := arg.Build()
 	t.Logf("【传递参数】%+v\n\n", argObj)
 	t.Logf("【传递参数】%+v\n\n", ToParamMap(argObj))
-	ret, err := app.SkuAdd(argObj)
+	ret, err := GetProductSku(app).SkuAdd(argObj)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -193,7 +193,7 @@ func TestExampleProductAdd(t *testing.T) {
 	}
 
 	// 结果
-	ret, err := app.ProductAdd(argR.Build())
+	ret, err := GetProduct(app).ProductAdd(argR.Build())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -203,11 +203,20 @@ func TestExampleProductAdd(t *testing.T) {
 // TestExampleProductEdit 编辑商品
 func TestExampleProductEdit(t *testing.T) {
 	t.Logf("AccessToken: %v\n\n", app.AccessToken)
-	arg := product.NewArgEdit(unit.ProductID("3437558429391149439"))
+	arg := product.NewArgEdit("3437558429391149439")
 	arg.SetName("iPhone Xs Max 256GB")
-	err := app.ProductEdit(arg.Build())
+	err := GetProduct(app).ProductEdit(arg.Build())
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println("edit success")
+}
+
+// TestExampleProductDel 删除商品
+func TestExampleProductDel(t *testing.T) {
+
+	t.Logf("AccessToken: %v\n\n", app.AccessToken)
+
+	ret := GetProduct(app).ProductDel("3437555203686143344")
+	fmt.Printf("result: %v\n", ret)
 }

@@ -112,7 +112,7 @@ func NewArgAdd(name string) ArgAddInterface {
 }
 
 // NewArgEdit 实例商品编辑参数
-func NewArgEdit(p unit.Product) ArgEdit {
+func NewArgEdit(p unit.ProductID) ArgEdit {
 	return &ArgAdd{ProductID: string(p.GetProductID())}
 }
 
