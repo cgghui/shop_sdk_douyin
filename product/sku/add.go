@@ -125,7 +125,7 @@ func NewArgAddSKU(spec unit.ProductSpec) ArgAddBuildInterface {
 	return &ArgAddBuild{
 		ArgAddSKU: ArgAddSKU{
 			spec:   spec,
-			SpecID: spec.GetProductSpecID().ToString(),
+			SpecID: spec.GetProductSpecID().String(),
 		},
 	}
 }
@@ -194,7 +194,7 @@ func (s *ArgAddSKU) Push(box ArgAddInterface, arg ...unit.SpecID) {
 		if !s.spec.HasSub(i, arg[i]) {
 			log.Panicf("arg %d values: %v", i, s.spec.GetSub(i))
 		}
-		tmp[i] = arg[i].ToString()
+		tmp[i] = arg[i].String()
 	}
 	s.SpecDetailIDS = strings.Join(tmp, unit.SPE1)
 	box.addSku(s)

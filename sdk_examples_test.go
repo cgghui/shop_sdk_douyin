@@ -1,6 +1,8 @@
 package shop_sdk_douyin
 
 import (
+	"fmt"
+	"github.com/cgghui/shop_sdk_douyin/product"
 	"github.com/cgghui/shop_sdk_douyin/product/sku"
 	"github.com/cgghui/shop_sdk_douyin/product/spec"
 	"github.com/cgghui/shop_sdk_douyin/unit"
@@ -14,9 +16,14 @@ const (
 )
 
 var app = NewBaseApp(TestAppKey, TestAppSecret).NewAccessTokenMust("b64614cd-03a6-48d9-9808-d160959e3f8f")
+var TestGoodsID = unit.ProductID("3436456108863134126")
 
-// TestExamplesSpecManage 商品规格列表
-func TestExamplesSpecManage(t *testing.T) {
+func TestRequest(t *testing.T) {
+
+}
+
+// TestExampleSpecManage 商品规格列表
+func TestExampleSpecManage(t *testing.T) {
 
 	// 按商品模块取得方法集
 	productSpec := GetProductSpec(app)
@@ -43,8 +50,8 @@ func TestExamplesSpecManage(t *testing.T) {
 	t.Logf("%+v", list)
 }
 
-// TestExamplesSpecAdd 创建商品的规格选项
-func TestExamplesSpecAdd(t *testing.T) {
+// TestExampleSpecAdd 创建商品的规格选项
+func TestExampleSpecAdd(t *testing.T) {
 
 	// 按商品模块取得方法集
 	productSpec := GetProductSpec(app)
@@ -73,12 +80,12 @@ func TestExamplesSpecAdd(t *testing.T) {
 	t.Logf("【删除】spec id %d 删除成功\n", ret.ID)
 }
 
-// TestSkuAdd 创建商品的SKU
-func TestSkuAdd(t *testing.T) {
+// TestExampleSkuAdd 创建商品的SKU
+func TestExampleSkuAdd(t *testing.T) {
 
 	t.Logf("AccessToken: %v\n\n", app.AccessToken)
 
-	goods, err := app.ProductDetail("3436456108863134126")
+	goods, err := app.ProductDetail(TestGoodsID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -117,4 +124,90 @@ func TestSkuAdd(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("【执行结果】%+v\n\n", ret)
+}
+
+// TestExampleProductAdd 创建商品
+func TestExampleProductAdd(t *testing.T) {
+
+	t.Logf("AccessToken: %v\n\n", app.AccessToken)
+
+	arg := product.NewArgAdd("iPhone Xs Max 128GB")
+	var (
+		argR product.ArgAddRequired = arg // 只填必传的参数
+		pic  *product.Pic
+	)
+
+	// 设置价格
+	argR.SetPrice(99.98, 120)
+
+	// 设置规格 必须取一组规格 76671573 为规格ID
+	SpecObj, err := app.SpecDetail(unit.SpecID(76671573))
+	if err != nil {
+		t.Fatal(err)
+	}
+	argR.SetSpecID(SpecObj)
+
+	// 设置图片 最多5张
+	pic = product.NewPic()
+	pic.Add("https://gd4.alicdn.com/imgextra/i2/634491/O1CN01T9PnWc1j2vIMn6gk2_!!634491.jpg") // 主图
+	pic.Add("https://gd3.alicdn.com/imgextra/i3/634491/O1CN01ucqqnb1j2vIMn6gs7_!!634491.jpg")
+	pic.Add("https://gd2.alicdn.com/imgextra/i2/634491/O1CN01Fhy0h81j2vIRZYmLe_!!634491.jpg")
+	pic.Add("https://gd3.alicdn.com/imgextra/i3/634491/O1CN01QeDQIe1j2vII8fMcJ_!!634491.jpg")
+	pic.Add("https://gd1.alicdn.com/imgextra/i1/634491/O1CN01B8TSxS1j2vIPbeu8I_!!634491.jpg")
+	if err := argR.SetPic(*pic); err != nil {
+		t.Fatal(err)
+	}
+
+	// 设置描述 抖音只能用图片
+	pic = product.NewPic()
+	pic.Add("https://img.alicdn.com/imgextra/i2/634491/O1CN01DNccfG1j2vIROeneG_!!634491.jpg")
+	pic.Add("https://img.alicdn.com/imgextra/i3/634491/O1CN01t9uyth1j2vIQ4yyVx_!!634491.jpg")
+	pic.Add("https://img.alicdn.com/imgextra/i4/634491/O1CN013jOqBe1j2vIROeX41_!!634491.jpg")
+	pic.Add("https://img.alicdn.com/imgextra/i2/634491/O1CN01wgPXHW1j2vIPJFLYo_!!634491.jpg")
+	pic.Add("https://img.alicdn.com/imgextra/i1/634491/O1CN01LzQNUl1j2vISIuhp0_!!634491.jpg")
+	argR.SetDescription(*pic)
+
+	// 设置分类
+	argR.SetCid(17, 2834, 2838) // 宠物生活/宠物主粮/猫粮
+
+	// 设置客服
+	argR.SetMobile("17715464009")
+
+	// 设置支付方式
+	argR.SetPayType(unit.CashDelivery)
+
+	// 设置重量
+	if err := argR.SetWeight(80); err != nil {
+		t.Fatal(err)
+	}
+
+	// 设置属性
+	pr := make(unit.PropertyOPTS, 0)
+	pr.Add("年龄", "25-29周岁")
+	pr.Add("尺码", "XS S M L XL")
+	pr.Add("面料", "羊毛")
+	pr.Add("图案", "纯色")
+	pr.Add("通勤", "OL风格")
+	if err := argR.SetProductFormat(pr); err != nil {
+		t.Fatal(err)
+	}
+
+	// 结果
+	ret, err := app.ProductAdd(argR.Build())
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Printf("uint64 product id: %d create time: %s\n\n", ret.ProductID, ret.CreateTime)
+}
+
+// TestExampleProductEdit 编辑商品
+func TestExampleProductEdit(t *testing.T) {
+	t.Logf("AccessToken: %v\n\n", app.AccessToken)
+	arg := product.NewArgEdit(unit.ProductID("3437558429391149439"))
+	arg.SetName("iPhone Xs Max 256GB")
+	err := app.ProductEdit(arg.Build())
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("edit success")
 }

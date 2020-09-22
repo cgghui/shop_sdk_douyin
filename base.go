@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/cgghui/shop_sdk_douyin/unit"
 	"github.com/mitchellh/mapstructure"
@@ -127,55 +128,63 @@ func ToParamMap(data interface{}, ret ...*ParamMap) ParamMap {
 		x := v.Field(i) // 值
 		// tag 结构体后的标记 n标记名称 o标记参数
 		tag := f.Tag.Get("paramName")
+		if tag == "-" {
+			continue
+		}
 		n := ""
 		o := ""
 		if strings.Index(tag, unit.SPE3) == -1 {
 			n = tag
 		} else {
-			x := strings.Split(tag, unit.SPE3)
-			n = x[0]
-			o = x[1]
+			xx := strings.Split(tag, unit.SPE3)
+			n = xx[0]
+			o = xx[1]
 		}
-		// 忽略该字段
-		if n != "-" {
-			val := ""
-			switch x.Kind() {
-			// int
-			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-				val = strconv.FormatInt(x.Int(), 10)
-			// uint
-			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				val = strconv.FormatUint(x.Uint(), 10)
-			// float
-			case reflect.Float32, reflect.Float64:
-				val = strconv.FormatFloat(x.Float(), 'f', -1, 64)
-			// string
-			case reflect.String:
-				val = x.String()
-			// struct
-			case reflect.Struct:
-				if f.Name == f.Type.Name() {
-					ToParamMap(x, &r)
-				}
-			// bool
-			case reflect.Bool:
-				if x.Bool() {
-					val = "true"
-				} else {
-					val = "false"
-				}
+		val := ""
+		switch x.Kind() {
+		// int
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			val = strconv.FormatInt(x.Int(), 10)
+		// uint
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			val = strconv.FormatUint(x.Uint(), 10)
+		// float
+		case reflect.Float32, reflect.Float64:
+			val = strconv.FormatFloat(x.Float(), 'f', -1, 64)
+		// string
+		case reflect.String:
+			val = x.String()
+		// struct
+		case reflect.Struct:
+			if f.Name == f.Type.Name() {
+				ToParamMap(x, &r)
 			}
-			if x.Kind() != reflect.Struct {
-				if n == "" {
-					n = strings.ToLower(f.Name)
-				}
-				switch o {
-				case "":
+		// bool
+		case reflect.Bool:
+			if x.Bool() {
+				val = "true"
+			} else {
+				val = "false"
+			}
+		}
+		if x.Kind() != reflect.Struct {
+			if n == "" {
+				n = strings.ToLower(f.Name)
+			}
+			switch o {
+			case "optional":
+				if val != "" && val != "0" {
 					r[n] = val
-				case "optional":
-					if val != "" && val != "0" {
+				}
+			default:
+				if _, has := t.MethodByName("HookSkipCheck"); has {
+					arg := []reflect.Value{reflect.ValueOf(n), reflect.ValueOf(val)}
+					ret := v.MethodByName("HookSkipCheck").Call(arg)
+					if !ret[0].Bool() {
 						r[n] = val
 					}
+				} else {
+					r[n] = val
 				}
 			}
 		}
@@ -231,6 +240,8 @@ func (b *BaseApp) NewRequest(method string, postData interface{}, d interface{})
 		return err
 	}
 	var ret BaseResp
+	//r, _ := ioutil.ReadAll(resp.Body)
+	//fmt.Printf("%s\n\n", r)
 	if err := json.NewDecoder(resp.Body).Decode(&ret); err != nil {
 		return err
 	}
@@ -240,8 +251,12 @@ func (b *BaseApp) NewRequest(method string, postData interface{}, d interface{})
 	if d == nil {
 		return nil
 	}
+	if ret.Data == nil {
+		return errors.New("response error data is nil")
+	}
 	if reflect.TypeOf(d).Elem().Kind() == reflect.Interface {
-		reflect.ValueOf(d).Elem().Set(reflect.ValueOf(ret.Data))
+		rd := reflect.ValueOf(ret.Data)
+		reflect.ValueOf(d).Elem().Set(rd)
 		return nil
 	}
 	return mapstructure.Decode(ret.Data, d)

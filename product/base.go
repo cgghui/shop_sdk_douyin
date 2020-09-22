@@ -10,30 +10,20 @@ import (
 // Pic 商品图片集合
 type Pic []string
 
+func NewPic() *Pic {
+	p := make(Pic, 0)
+	return &p
+}
+
 // Add 添加图片
 func (p *Pic) Add(imgURL string) *Pic {
 	*p = append(*p, imgURL)
 	return p
 }
 
-// Distinct 去除重复的图片
-func (p Pic) Distinct() Pic {
-	x := map[string]string{}
-	for _, imgURL := range p {
-		x[imgURL] = imgURL
-	}
-	r := make(Pic, len(x))
-	i := 0
-	for imgURL, _ := range x {
-		r[i] = imgURL
-		i++
-	}
-	return r
-}
-
 // JoinString 将图片拼合抖音规定的格式
 func (p Pic) JoinString() string {
-	return strings.Join(p.Distinct(), unit.SPE1)
+	return strings.Join(p, unit.SPE1)
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -60,12 +50,3 @@ const (
 )
 
 /////////////////////////////////////////////////////////////////////
-
-// PT 付款方式
-type PT uint8
-
-const (
-	CashDelivery  PT = iota // 货到付款
-	OnlinePayment           // 在线支付
-	Casual                  // 让客户选择
-)

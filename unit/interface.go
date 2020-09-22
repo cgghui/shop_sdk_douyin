@@ -10,3 +10,8 @@ type ProductSpec interface {
 	HasSub(int, SpecID) bool
 	GetSub(int) []SpecID
 }
+
+type SkuOperate interface {
+	Product
+	GetSkuID() SkuID
+}

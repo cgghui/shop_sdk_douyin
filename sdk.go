@@ -74,10 +74,40 @@ func (a *App) ProductCategory(id ...unit.ProductCID) ([]product.ResponseCategory
 	return body, nil
 }
 
+// ProductCateProperty 根据商品分类获取对应的属性列表
+// id 分类id，如果不指则获取最顶级
+// https://op.jinritemai.com/docs/api-docs/14/58
+func (a *App) ProductCateProperty(cid1, cid2, cid3 unit.ProductCID) ([]product.ResponseCateProperty, error) {
+	dat := ParamMap{"first_cid": cid1, "second_cid": cid2, "third_cid": cid3}
+	var body []product.ResponseCateProperty
+	if err := a.base.NewRequest("product.getCateProperty", dat, &body); err != nil {
+		return body, err
+	}
+	return body, nil
+}
+
 // ProductAdd 添加商品
 // https://op.jinritemai.com/docs/api-docs/14/59
-func (a *App) ProductAdd(arg product.ArgAdd) {
+func (a *App) ProductAdd(arg product.ArgAdd) (product.Product, error) {
+	var body product.ResponseDetail
+	if err := a.base.NewRequest("product.add", arg, &body); err != nil {
+		return product.Product{}, err
+	}
+	return body.Product, nil
+}
 
+// ProductEdit 编辑商品
+// 编辑商品的参数虽与ProductAdd共用，但须要使用product.NewArgEdit方法进行实例
+// https://op.jinritemai.com/docs/api-docs/14/59
+func (a *App) ProductEdit(arg product.ArgAdd) error {
+	var body interface{}
+	if err := a.base.NewRequest("product.edit", arg, &body); err != nil {
+		return err
+	}
+	if ret, ok := body.(bool); ok && ret {
+		return nil
+	}
+	return errors.New("edit fail")
 }
 
 // SpecAdd 添加选项规格
@@ -139,4 +169,39 @@ func (a *App) SkuList(ProductStrID unit.ProductID) ([]sku.ResponseList, error) {
 		return body, err
 	}
 	return body, nil
+}
+
+// SkuDetail 获取商品sku详情
+// https://op.jinritemai.com/docs/api-docs/14/104
+// todo 官方的这个方法有问题，404。可以通过SkuList方法暂时代替
+func (a *App) SkuDetail(sid unit.SkuID) (sku.ResponseDetail, error) {
+	var body sku.ResponseDetail
+	if err := a.base.NewRequest("sku.detail", ParamMap{"sku_id": sid}, &body); err != nil {
+		return body, err
+	}
+	return body, nil
+}
+
+// SkuEditPrice 修改商品sku的价格
+// op参数的实现 sku.Detail 可调用 App.SkuDetail、App.SkuList 方法
+// https://op.jinritemai.com/docs/api-docs/14/84
+func (a *App) SkuEditPrice(op unit.SkuOperate, p float64) error {
+	arg := ParamMap{"product_id": op.GetProductID(), "sku_id": op.GetSkuID(), "price": unit.PriceToYuan(p)}
+	return a.base.NewRequest("sku.editPrice", arg, nil)
+}
+
+// SkuSyncStock 修改商品sku的库存
+// op参数的实现 sku.Detail 可调用 App.SkuDetail、App.SkuList 方法
+// https://op.jinritemai.com/docs/api-docs/14/85
+func (a *App) SkuSyncStock(op unit.SkuOperate, n uint16) error {
+	arg := ParamMap{"product_id": op.GetProductID(), "sku_id": op.GetSkuID(), "stock_num": n}
+	return a.base.NewRequest("sku.syncStock", arg, nil)
+}
+
+// SkuEditCode 修改商品sku的编码
+// op参数的实现 sku.Detail 可调用 App.SkuDetail、App.SkuList 方法
+// https://op.jinritemai.com/docs/api-docs/14/86
+func (a *App) SkuEditCode(op unit.SkuOperate, c string) error {
+	arg := ParamMap{"product_id": op.GetProductID(), "sku_id": op.GetSkuID(), "code": c}
+	return a.base.NewRequest("sku.editCode", arg, nil)
 }

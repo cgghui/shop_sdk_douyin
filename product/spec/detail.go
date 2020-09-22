@@ -69,14 +69,14 @@ type Spec struct {
 
 // Pic 商品选项<图片表>
 type Pic struct {
-	SpecDetailID uint64 `mapstructure:"spec_detail_id"` // 规格id 与 ProductSpec.ID 对应
-	Pic          string `mapstructure:"pic"`            // 图片路径
+	ID  unit.SpecID `mapstructure:"spec_detail_id"` // 规格id 与 ProductSpec.ID 对应
+	Pic string      `mapstructure:"pic"`            // 图片路径
 }
 
 // Price 商品选项<价格表>
 type Price struct {
 	sku.Info        `mapstructure:",squash"`
-	SkuID           uint64        `mapstructure:"sku_id"`           // todo 目前还不知道这字段是什么意思
+	SkuID           unit.SkuID    `mapstructure:"sku_id"`
 	SpecDetailIDS   []unit.SpecID `mapstructure:"spec_detail_ids"`  // 规格id 与 ProductSpec.ID 对应
 	SettlementPrice unit.Price    `mapstructure:"settlement_price"` // 结算价格
 }

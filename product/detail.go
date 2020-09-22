@@ -33,7 +33,7 @@ type Product struct {
 	FirstCid        unit.ProductCID `mapstructure:"first_cid"`        // 一级分类id（三个分类级别请确保从属正确）
 	SecondCid       unit.ProductCID `mapstructure:"second_cid"`       // 二级分类id
 	ThirdCid        unit.ProductCID `mapstructure:"third_cid"`        // 三级分类id
-	PayType         PT              `mapstructure:"pay_type"`         // 支付方式，必填，0-货到付款，1-在线支付，2-二者都支持
+	PayType         unit.PayT       `mapstructure:"pay_type"`         // 支付方式，必填，0-货到付款，1-在线支付，2-二者都支持
 	RecommendRemark string          `mapstructure:"recommend_remark"` // 商家推荐语，不能含emoj表情
 	IsCreate        uint8           `mapstructure:"is_create"`
 	CreateTime      string          `mapstructure:"create_time"`
@@ -41,5 +41,5 @@ type Product struct {
 }
 
 func (p Product) GetProductID() unit.ProductID {
-	return p.ProductStrID
+	return p.ProductStrID.GetProductID()
 }
