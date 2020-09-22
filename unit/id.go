@@ -8,6 +8,7 @@ type (
 	ProductCID uint16 // 商品分类ID
 	SpecID     uint64 // 规格选项ID
 	SkuID      uint64 // SKU ID
+	OrderID    string // 订单ID
 )
 
 const CidTOP ProductCID = 0 // 商品的最顶级分类

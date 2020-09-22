@@ -2,12 +2,14 @@ package shop_sdk_douyin
 
 import (
 	"fmt"
+	"github.com/cgghui/shop_sdk_douyin/order"
 	"github.com/cgghui/shop_sdk_douyin/product"
 	"github.com/cgghui/shop_sdk_douyin/product/sku"
 	"github.com/cgghui/shop_sdk_douyin/product/spec"
 	"github.com/cgghui/shop_sdk_douyin/unit"
 	"sync"
 	"testing"
+	"time"
 )
 
 const (
@@ -219,4 +221,24 @@ func TestExampleProductDel(t *testing.T) {
 
 	ret := GetProduct(app).ProductDel("3437555203686143344")
 	fmt.Printf("result: %v\n", ret)
+}
+
+// TestExampleOrderList 订单列表
+func TestExampleOrderList(t *testing.T) {
+
+	t.Logf("AccessToken: %v\n\n", app.AccessToken)
+
+	st, _ := time.Parse(unit.TimeYmd, time.Now().Format(unit.TimeYmd))
+
+	arg := order.ArgList{
+		//Status:    order.WaitPay,
+		StartTime: st,
+		EndTime:   st.Add(24 * time.Hour),
+		OrderBy:   "create_time",
+		IsDesc:    unit.TrueInt,
+		Page:      0,
+		Size:      100,
+	}
+	ret, err := app.OrderList(arg)
+	fmt.Printf("result: %+v %v\n", ret, err)
 }

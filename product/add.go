@@ -262,7 +262,7 @@ func (p *ArgAdd) SetPresellEndTime(t time.Duration) error {
 	if t > 30 {
 		return errors.New("presell end time max 30 day")
 	}
-	p.PresellEndTime = time.Now().Add((time.Hour * 24) * t).Format("2006-01-02 15:04:05")
+	p.PresellEndTime = time.Now().Add((time.Hour * 24) * t).Format(unit.TimeYmdHis)
 	return nil
 }
 

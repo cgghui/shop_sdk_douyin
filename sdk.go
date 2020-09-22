@@ -1,7 +1,10 @@
 package shop_sdk_douyin
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/cgghui/shop_sdk_douyin/order"
 	"github.com/cgghui/shop_sdk_douyin/product"
 	"github.com/cgghui/shop_sdk_douyin/product/sku"
 	"github.com/cgghui/shop_sdk_douyin/product/spec"
@@ -213,4 +216,16 @@ func (a *App) SkuSyncStock(op unit.SkuOperate, n uint16) error {
 func (a *App) SkuEditCode(op unit.SkuOperate, c string) error {
 	arg := ParamMap{"product_id": op.GetProductID(), "sku_id": op.GetSkuID(), "code": c}
 	return a.base.NewRequest("sku.editCode", arg, nil)
+}
+
+// OrderList 订单列表
+// https://op.jinritemai.com/docs/api-docs/15/55
+func (a *App) OrderList(arg order.ArgList) (order.ResponseList, error) {
+	var body interface{}
+	if err := a.base.NewRequest("order.list", arg, &body); err != nil {
+		return order.ResponseList{}, err
+	}
+	r, _ := json.Marshal(body)
+	fmt.Printf("%s\n", r)
+	return order.ResponseList{}, nil
 }

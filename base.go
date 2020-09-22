@@ -158,6 +158,13 @@ func ToParamMap(data interface{}, ret ...*ParamMap) ParamMap {
 		case reflect.Struct:
 			if f.Name == f.Type.Name() {
 				ToParamMap(x, &r)
+			} else {
+				if _, has := t.MethodByName("HookConvertValue"); has {
+					r[n] = v.MethodByName("HookConvertValue").Call([]reflect.Value{
+						reflect.ValueOf(f),
+						reflect.ValueOf(x),
+					})[0].String()
+				}
 			}
 		// bool
 		case reflect.Bool:
@@ -179,8 +186,7 @@ func ToParamMap(data interface{}, ret ...*ParamMap) ParamMap {
 			default:
 				if _, has := t.MethodByName("HookSkipCheck"); has {
 					arg := []reflect.Value{reflect.ValueOf(n), reflect.ValueOf(val)}
-					ret := v.MethodByName("HookSkipCheck").Call(arg)
-					if !ret[0].Bool() {
+					if ret := v.MethodByName("HookSkipCheck").Call(arg); !ret[0].Bool() {
 						r[n] = val
 					}
 				} else {
@@ -217,7 +223,7 @@ func (b *BaseApp) NewRequest(method string, postData interface{}, d interface{})
 		"app_key":      b.Key,
 		"access_token": *b.accessToken,
 		"param_json":   dat,
-		"timestamp":    time.Now().Format("2006-01-02 15:04:05"),
+		"timestamp":    time.Now().Format(unit.TimeYmdHis),
 		"v":            "2",
 		"sign":         "",
 	}

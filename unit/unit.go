@@ -26,3 +26,13 @@ const (
 	GoodsPOff GoodsP = iota // 非预售
 	GoodsPOn                // 全款预售
 )
+
+type BoolInt uint8
+
+const (
+	FalseInt BoolInt = iota
+	TrueInt
+)
+
+const TimeYmd = "2006-01-02"
+const TimeYmdHis = "2006-01-02 15:04:05"
