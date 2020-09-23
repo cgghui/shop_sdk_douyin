@@ -9,6 +9,7 @@ type (
 	SpecID     uint64 // 规格选项ID
 	SkuID      uint64 // SKU ID
 	OrderID    string // 订单ID
+	ServiceID  uint64 // 服务ID
 )
 
 const CidTOP ProductCID = 0 // 商品的最顶级分类
@@ -18,6 +19,13 @@ func (p ProductID) GetProductID() ProductID {
 		panic("product id empty")
 	}
 	return p
+}
+
+func (o OrderID) GetParentID() OrderID {
+	if o == "" {
+		panic("order id empty")
+	}
+	return o
 }
 
 func (b BrandID) String() string {

@@ -228,13 +228,41 @@ func (a *App) OrderList(arg order.ArgList) (order.ResponseList, error) {
 
 // OrderDetail 订单详情
 // https://op.jinritemai.com/docs/api-docs/15/68
-func (a *App) OrderDetail(id unit.OrderID) (order.Detail, error) {
+func (a *App) OrderDetail(o unit.Order) (order.Detail, error) {
 	var body order.ResponseList
-	if err := a.base.NewRequest("order.detail", ParamMap{"order_id": id}, &body); err != nil {
+	if err := a.base.NewRequest("order.detail", ParamMap{"order_id": o.GetParentID()}, &body); err != nil {
 		return order.Detail{}, err
 	}
 	if body.Total != 1 {
 		return order.Detail{}, errors.New("order total not is 1")
 	}
 	return body.List[0], nil
+}
+
+// OrderStockUp 确认货到付款订单
+// https://op.jinritemai.com/docs/api-docs/15/69
+func (a *App) OrderStockUp(o unit.Order) error {
+	return a.base.NewRequest("order.stockUp", ParamMap{"order_id": o.GetParentID()}, nil)
+}
+
+// OrderCancel 取消货到付款订单
+// https://op.jinritemai.com/docs/api-docs/15/72
+func (a *App) OrderCancel(o unit.Order, reason string) error {
+	return a.base.NewRequest("order.cancel", ParamMap{"order_id": o.GetParentID(), "reason": reason}, nil)
+}
+
+// OrderServiceList 获取客服向店铺发起的服务请求列表
+// https://op.jinritemai.com/docs/api-docs/15/74
+func (a *App) OrderServiceList(arg order.ArgServiceList) (order.ResponseServiceList, error) {
+	var body order.ResponseServiceList
+	if err := a.base.NewRequest("order.serviceList", arg, &body); err != nil {
+		return order.ResponseServiceList{}, err
+	}
+	return body, nil
+}
+
+// OrderReplyService 回复服务请求
+// https://op.jinritemai.com/docs/api-docs/15/75
+func (a *App) OrderReplyService(id unit.ServiceID, reply string) error {
+	return a.base.NewRequest("order.replyService", ParamMap{"id": id, "reply": reply}, nil)
 }

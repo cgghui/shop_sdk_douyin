@@ -118,7 +118,7 @@ func NewArgEdit(p unit.ProductID) ArgEdit {
 
 // HookSkipCheck
 // 这个方法是shop_sdk_douyin.ToMapData方法调用的
-func (p ArgAdd) HookSkipCheck(_, v string) bool {
+func (p ArgAdd) HookSkipCheck(_, _, v string) bool {
 	// p.Commit == "" 即新增 新增时不可跳过 强制带值
 	// p.Commit != "" 即修改 修改时可以跳过
 	if p.Commit != "" {

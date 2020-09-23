@@ -242,6 +242,34 @@ func TestExampleOrderList(t *testing.T) {
 	ret, err := app.OrderList(arg)
 	fmt.Printf("result: %+v %v\n\n", ret, err)
 
-	detail, err := app.OrderDetail("4710136396971563369A")
+	id := unit.OrderID("4710483426047603049A")
+
+	detail, err := app.OrderDetail(id)
 	fmt.Printf("detail: %+v %v\n", detail, err)
+
+	err = app.OrderStockUp(id)
+	fmt.Printf("stockup: %v\n", err)
+}
+
+// TestExampleOrderServiceList 订单列表
+func TestExampleOrderServiceList(t *testing.T) {
+
+	t.Logf("AccessToken: %v\n\n", app.AccessToken)
+
+	startT, _ := time.Parse(unit.TimeYmd, "2020-09-23")
+
+	arg := order.ArgServiceList{
+		StartTime: startT,
+		EndTime:   startT.Add(24 * time.Hour),
+		Status:    unit.StructS{Value: "1"},
+		Supply:    unit.StructS{Value: "0"},
+		Page:      0,
+		Size:      100,
+	}
+	fmt.Printf("%v\n\n", ToParamMap(arg))
+	list, err := app.OrderServiceList(arg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Printf("%+v", list)
 }

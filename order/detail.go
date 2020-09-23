@@ -41,6 +41,10 @@ type Detail struct {
 	Child            []Child      `mapstructure:"child"`              // 子订单列表
 }
 
+func (d Detail) GetParentID() unit.OrderID {
+	return d.OrderID.GetParentID()
+}
+
 // Child 子订单信息
 type Child struct {
 	Detail            `mapstructure:",squash"`
@@ -62,6 +66,10 @@ type Child struct {
 	WarehouseID       interface{}       `mapstructure:"warehouse_id"`       // 仓库ID
 	OutWarehouseID    interface{}       `mapstructure:"out_warehouse_id"`   // 仓库外部ID
 	WarehouseSupplier interface{}       `mapstructure:"warehouse_supplier"` // 供应商ID
+}
+
+func (c Child) GetParentID() unit.OrderID {
+	return c.PID.GetParentID()
 }
 
 // Address 收货地址

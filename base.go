@@ -122,10 +122,26 @@ func ToParamMap(data interface{}, ret ...*ParamMap) ParamMap {
 		t = reflect.TypeOf(data)
 		v = reflect.ValueOf(data)
 	}
+	// HookConvertValue
+	var Func1has bool
+	var Func1 reflect.Value
+	if _, has := t.MethodByName("HookConvertValue"); has {
+		Func1has = has
+		Func1 = v.MethodByName("HookConvertValue")
+	}
+	// HookSkipCheck
+	var Func2has bool
+	var Func2 reflect.Value
+	if _, has := t.MethodByName("HookSkipCheck"); has {
+		Func2has = has
+		Func2 = v.MethodByName("HookSkipCheck")
+	}
 	// 遍历结构体字段
 	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i) // 字段
-		x := v.Field(i) // 值
+		f := t.Field(i)       // 字段
+		x := v.Field(i)       // 值
+		fs := f.Type.String() // 字段类型 字符串
+		ff := reflect.ValueOf(f)
 		// tag 结构体后的标记 n标记名称 o标记参数
 		tag := f.Tag.Get("paramName")
 		if tag == "-" {
@@ -139,6 +155,9 @@ func ToParamMap(data interface{}, ret ...*ParamMap) ParamMap {
 			xx := strings.Split(tag, unit.SPE3)
 			n = xx[0]
 			o = xx[1]
+		}
+		if n == "" {
+			n = strings.ToLower(f.Name)
 		}
 		val := ""
 		switch x.Kind() {
@@ -159,11 +178,8 @@ func ToParamMap(data interface{}, ret ...*ParamMap) ParamMap {
 			if f.Name == f.Type.Name() {
 				ToParamMap(x, &r)
 			} else {
-				if _, has := t.MethodByName("HookConvertValue"); has {
-					r[n] = v.MethodByName("HookConvertValue").Call([]reflect.Value{
-						reflect.ValueOf(f),
-						reflect.ValueOf(x),
-					})[0].String()
+				if Func1has {
+					val = Func1.Call([]reflect.Value{ff, reflect.ValueOf(x)})[0].String()
 				}
 			}
 		// bool
@@ -175,21 +191,24 @@ func ToParamMap(data interface{}, ret ...*ParamMap) ParamMap {
 			}
 		}
 		if x.Kind() != reflect.Struct {
-			if n == "" {
-				n = strings.ToLower(f.Name)
-			}
-			switch o {
-			case "optional":
+			if o == "optional" {
 				if val != "" && val != "0" {
 					r[n] = val
 				}
-			default:
-				if _, has := t.MethodByName("HookSkipCheck"); has {
-					arg := []reflect.Value{reflect.ValueOf(n), reflect.ValueOf(val)}
-					if ret := v.MethodByName("HookSkipCheck").Call(arg); !ret[0].Bool() {
+			} else {
+				if Func2has {
+					arg := []reflect.Value{reflect.ValueOf(fs), reflect.ValueOf(n), reflect.ValueOf(val)}
+					if ret := Func2.Call(arg); !ret[0].Bool() {
 						r[n] = val
 					}
 				} else {
+					r[n] = val
+				}
+			}
+		} else {
+			if Func2has {
+				arg := []reflect.Value{reflect.ValueOf(fs), reflect.ValueOf(n), reflect.ValueOf(val)}
+				if ret := Func2.Call(arg); !ret[0].Bool() {
 					r[n] = val
 				}
 			}

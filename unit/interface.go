@@ -15,3 +15,7 @@ type SkuOperate interface {
 	Product
 	GetSkuID() SkuID
 }
+
+type Order interface {
+	GetParentID() OrderID
+}
