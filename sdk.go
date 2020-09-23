@@ -1,9 +1,7 @@
 package shop_sdk_douyin
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/cgghui/shop_sdk_douyin/order"
 	"github.com/cgghui/shop_sdk_douyin/product"
 	"github.com/cgghui/shop_sdk_douyin/product/sku"
@@ -221,11 +219,22 @@ func (a *App) SkuEditCode(op unit.SkuOperate, c string) error {
 // OrderList 订单列表
 // https://op.jinritemai.com/docs/api-docs/15/55
 func (a *App) OrderList(arg order.ArgList) (order.ResponseList, error) {
-	var body interface{}
+	var body order.ResponseList
 	if err := a.base.NewRequest("order.list", arg, &body); err != nil {
 		return order.ResponseList{}, err
 	}
-	r, _ := json.Marshal(body)
-	fmt.Printf("%s\n", r)
-	return order.ResponseList{}, nil
+	return body, nil
+}
+
+// OrderDetail 订单详情
+// https://op.jinritemai.com/docs/api-docs/15/68
+func (a *App) OrderDetail(id unit.OrderID) (order.Detail, error) {
+	var body order.ResponseList
+	if err := a.base.NewRequest("order.detail", ParamMap{"order_id": id}, &body); err != nil {
+		return order.Detail{}, err
+	}
+	if body.Total != 1 {
+		return order.Detail{}, errors.New("order total not is 1")
+	}
+	return body.List[0], nil
 }

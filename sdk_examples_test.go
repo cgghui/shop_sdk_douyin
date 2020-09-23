@@ -228,17 +228,20 @@ func TestExampleOrderList(t *testing.T) {
 
 	t.Logf("AccessToken: %v\n\n", app.AccessToken)
 
-	st, _ := time.Parse(unit.TimeYmd, time.Now().Format(unit.TimeYmd))
+	st, _ := time.Parse(unit.TimeYmd, "2020-09-20")
 
 	arg := order.ArgList{
 		//Status:    order.WaitPay,
 		StartTime: st,
-		EndTime:   st.Add(24 * time.Hour),
+		EndTime:   st.Add((7 * 24) * time.Hour),
 		OrderBy:   "create_time",
 		IsDesc:    unit.TrueInt,
 		Page:      0,
 		Size:      100,
 	}
 	ret, err := app.OrderList(arg)
-	fmt.Printf("result: %+v %v\n", ret, err)
+	fmt.Printf("result: %+v %v\n\n", ret, err)
+
+	detail, err := app.OrderDetail("4710136396971563369A")
+	fmt.Printf("detail: %+v %v\n", detail, err)
 }

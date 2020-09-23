@@ -16,6 +16,6 @@ func (p *PropertyOPTS) Add(n, v string) {
 
 // Relation 通用关系结构
 type Relation struct {
-	ID   uint32 `mapstructure:"id"`
+	ID   string `mapstructure:"id"`
 	Name string `mapstructure:"name"`
 }

@@ -34,5 +34,12 @@ const (
 	TrueInt
 )
 
+type BoolStr string
+
+const (
+	FalseStr BoolStr = "0"
+	TrueStr  BoolStr = "1"
+)
+
 const TimeYmd = "2006-01-02"
 const TimeYmdHis = "2006-01-02 15:04:05"
