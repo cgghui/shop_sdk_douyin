@@ -1,7 +1,7 @@
 package shop_sdk_douyin
 
 import (
-	"fmt"
+	"github.com/cgghui/shop_sdk_douyin/aftersale"
 	"github.com/cgghui/shop_sdk_douyin/order"
 	"github.com/cgghui/shop_sdk_douyin/product"
 	"github.com/cgghui/shop_sdk_douyin/product/sku"
@@ -307,13 +307,47 @@ func TestExampleAddressProvinceList(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	wg := sync.WaitGroup{}
 	for _, ls := range list {
 		city, _ := LogisticsAPI(app).AddressCityList(ls.ID)
 		for _, c := range city {
 			area, err := LogisticsAPI(app).AddressAreaList(c.ID)
-			fmt.Printf("%s %s \n%+v %v\n\n", ls.Province, c.City, area, err)
+			t.Logf("%s %s \n%+v %v\n\n", ls.Province, c.City, area, err)
 		}
 	}
-	wg.Wait()
+}
+
+// TestExampleRefundOrderList 获取备货中有退款的订单列表
+func TestExampleRefundOrderList(t *testing.T) {
+
+	t.Logf("AccessToken: %v\n\n", app.AccessToken)
+
+	st, _ := time.Parse(unit.TimeYmd, "2020-09-20")
+
+	arg := aftersale.ArgRefundOrderList{
+		Type:      aftersale.RFD01,
+		StartTime: st,
+		EndTime:   st.Add((7 * 24) * time.Hour),
+		OrderBy:   "create_time",
+		IsDesc:    unit.TrueInt,
+		Page:      0,
+		Size:      100,
+	}
+	list, err := app.RefundOrderList(arg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%v\n\n", list)
+}
+
+// TestExampleRefundShopRefund 商家处理备货中退款申请
+func TestExampleRefundShopRefund(t *testing.T) {
+
+	t.Logf("AccessToken: %v\n\n", app.AccessToken)
+
+	arg := aftersale.ArgRefundShopRefund{
+		OrderID: "4710136396971563369A",
+		Type:    aftersale.RSR01,
+	}
+	err := app.RefundShopRefund(arg)
+	t.Logf("%v\n\n", err)
 }

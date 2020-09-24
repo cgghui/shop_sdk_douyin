@@ -1,6 +1,7 @@
 package shop_sdk_douyin
 
 import (
+	"github.com/cgghui/shop_sdk_douyin/aftersale"
 	"github.com/cgghui/shop_sdk_douyin/logistics"
 	"github.com/cgghui/shop_sdk_douyin/order"
 	"github.com/cgghui/shop_sdk_douyin/product"
@@ -50,6 +51,8 @@ type OrderAPI interface {
 	OrderReplyService(unit.ServiceID, string) error
 	OrderLogisticsAdd(order.ArgLogisticsAdd) error
 	OrderLogisticsEdit(order.ArgLogisticsAdd) error
+	RefundOrderList(aftersale.ArgRefundOrderList) (order.ResponseList, error)
+	RefundShopRefund(aftersale.ArgRefundShopRefund) error
 }
 
 // LogisticsAPI 物流接口
