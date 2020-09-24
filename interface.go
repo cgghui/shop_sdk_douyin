@@ -51,8 +51,6 @@ type OrderAPI interface {
 	OrderReplyService(unit.ServiceID, string) error
 	OrderLogisticsAdd(order.ArgLogisticsAdd) error
 	OrderLogisticsEdit(order.ArgLogisticsAdd) error
-	RefundOrderList(aftersale.ArgRefundOrderList) (order.ResponseList, error)
-	RefundShopRefund(aftersale.ArgRefundShopRefund) error
 }
 
 // LogisticsAPI 物流接口
@@ -63,4 +61,17 @@ type LogisticsAPI interface {
 	AddressProvinceList() ([]logistics.Province, error)
 	AddressCityList(uint32) ([]logistics.City, error)
 	AddressAreaList(uint32) ([]logistics.Area, error)
+}
+
+// AfterSaleAPI 售后接口
+type AfterSaleAPI interface {
+	RefundOrderList(aftersale.ArgRefundOrderList) (order.ResponseList, error)
+	RefundShopRefund(aftersale.ArgRefundShopRefund) error
+	AfterSaleOrderList(aftersale.ArgAfterSaleOrderList) (order.ResponseList, error)
+	AfterSaleBuyerReturn(aftersale.ArgAfterSaleBuyerReturn) error
+	AfterSaleFirmReceive(aftersale.ArgAfterSaleFirmReceive) error
+	AfterSaleUploadCompensation(aftersale.ArgAfterSaleUploadCompensation) error
+	AfterSaleAddOrderRemark(unit.OrderID, string) error
+	AfterSaleRefundProcessDetail(unit.OrderID) (aftersale.ResponseAfterSaleRefundProcessDetail, error)
+	AfterSaleBuyerRefund(aftersale.ArgAfterSaleBuyerRefund) error
 }
