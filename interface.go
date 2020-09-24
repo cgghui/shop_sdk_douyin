@@ -1,12 +1,17 @@
 package shop_sdk_douyin
 
 import (
+	"github.com/cgghui/shop_sdk_douyin/logistics"
+	"github.com/cgghui/shop_sdk_douyin/order"
 	"github.com/cgghui/shop_sdk_douyin/product"
 	"github.com/cgghui/shop_sdk_douyin/product/sku"
 	"github.com/cgghui/shop_sdk_douyin/product/spec"
 	"github.com/cgghui/shop_sdk_douyin/unit"
 )
 
+// 以下接口 shop_sdk_douyin.App 都已经实现
+
+// ProductAPI 商品接口
 type ProductAPI interface {
 	ProductList(product.ArgList) (product.ResponseList, error)
 	ProductDetail(unit.ProductID, ...bool) (product.ResponseDetail, error)
@@ -17,6 +22,7 @@ type ProductAPI interface {
 	ProductDel(unit.ProductID) error
 }
 
+// ProductSpecAPI 规格接口
 type ProductSpecAPI interface {
 	SpecAdd(spec.ArgAdd) (spec.ResponseAdd, error)
 	SpecList() ([]spec.ResponseList, error)
@@ -24,6 +30,7 @@ type ProductSpecAPI interface {
 	SpecDel(unit.SpecID) error
 }
 
+// ProductSkuAPI SKU接口
 type ProductSkuAPI interface {
 	SkuAdd(sku.ArgAdd) (map[uint64]unit.SkuID, error)
 	SkuList(unit.ProductID) ([]sku.ResponseList, error)
@@ -33,17 +40,24 @@ type ProductSkuAPI interface {
 	SkuEditCode(unit.SkuOperate, string) error
 }
 
-// GetProduct 从App独立出商品操作管理方法
-func GetProduct(app *App) ProductAPI {
-	return app
+// OrderAPI 订单接口
+type OrderAPI interface {
+	OrderList(order.ArgList) (order.ResponseList, error)
+	OrderDetail(unit.Order) (order.Detail, error)
+	OrderStockUp(unit.Order) error
+	OrderCancel(unit.Order, string) error
+	OrderServiceList(order.ArgServiceList) (order.ResponseServiceList, error)
+	OrderReplyService(unit.ServiceID, string) error
+	OrderLogisticsAdd(order.ArgLogisticsAdd) error
+	OrderLogisticsEdit(order.ArgLogisticsAdd) error
 }
 
-// GetProductSpec 从App独立出商品规格操作管理方法
-func GetProductSpec(app *App) ProductSpecAPI {
-	return app
-}
-
-// GetProductSpec 从App独立出商品SKU操作管理方法
-func GetProductSku(app *App) ProductSkuAPI {
-	return app
+// LogisticsAPI 物流接口
+type LogisticsAPI interface {
+	OrderLogisticsCompanyList() (logistics.ResponseLogisticsCompanyList, error)
+	OrderLogisticsAdd(order.ArgLogisticsAdd) error
+	OrderLogisticsEdit(order.ArgLogisticsAdd) error
+	AddressProvinceList() ([]logistics.Province, error)
+	AddressCityList(uint32) ([]logistics.City, error)
+	AddressAreaList(uint32) ([]logistics.Area, error)
 }

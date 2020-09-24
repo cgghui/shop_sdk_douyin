@@ -38,6 +38,7 @@ type Detail struct {
 	BType            BT           `mapstructure:"b_type"`             // 订单APP渠道
 	SubBType         SBT          `mapstructure:"sub_b_type"`         // 订单来源类型 0:未知 1:app 2:小程序 3:h5
 	CBiz             CB           `mapstructure:"c_biz"`              // 订单业务类型
+	CType            interface{}  `mapstructure:"c_type"`             // TODO 不知道干麻用的 未知的一个字段
 	Child            []Child      `mapstructure:"child"`              // 子订单列表
 }
 

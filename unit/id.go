@@ -10,6 +10,7 @@ type (
 	SkuID      uint64 // SKU ID
 	OrderID    string // 订单ID
 	ServiceID  uint64 // 服务ID
+	CompanyID  uint16 // 物流公司ID
 )
 
 const CidTOP ProductCID = 0 // 商品的最顶级分类

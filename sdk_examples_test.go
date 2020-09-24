@@ -28,7 +28,7 @@ func TestRequest(t *testing.T) {
 func TestExampleSpecManage(t *testing.T) {
 
 	// 按商品模块取得方法集
-	productSpec := GetProductSpec(app)
+	productSpec := ProductSpecAPI(app)
 
 	// 获取规格列表
 	list, err := productSpec.SpecList()
@@ -56,7 +56,7 @@ func TestExampleSpecManage(t *testing.T) {
 func TestExampleSpecAdd(t *testing.T) {
 
 	// 按商品模块取得方法集
-	productSpec := GetProductSpec(app)
+	productSpec := ProductSpecAPI(app)
 
 	// 构建参数
 	arg := spec.NewArgAdd("规格参数一")
@@ -87,21 +87,21 @@ func TestExampleSkuAdd(t *testing.T) {
 
 	t.Logf("AccessToken: %v\n\n", app.AccessToken)
 
-	goods, err := GetProduct(app).ProductDetail(TestGoodsID)
+	goods, err := ProductAPI(app).ProductDetail(TestGoodsID)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("【商品信息】%+v\n\n", goods)
 
 	// 获取规格列表
-	list, err := GetProductSpec(app).SpecList()
+	list, err := ProductSpecAPI(app).SpecList()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("【规格列表】%+v\n\n", list)
 
 	// 必须取一组规格 76671573 为规格ID
-	specObj, err := GetProductSpec(app).SpecDetail(unit.SpecID(76671573))
+	specObj, err := ProductSpecAPI(app).SpecDetail(unit.SpecID(76671573))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -121,7 +121,7 @@ func TestExampleSkuAdd(t *testing.T) {
 	argObj, _ := arg.Build()
 	t.Logf("【传递参数】%+v\n\n", argObj)
 	t.Logf("【传递参数】%+v\n\n", ToParamMap(argObj))
-	ret, err := GetProductSku(app).SkuAdd(argObj)
+	ret, err := ProductSkuAPI(app).SkuAdd(argObj)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -195,11 +195,11 @@ func TestExampleProductAdd(t *testing.T) {
 	}
 
 	// 结果
-	ret, err := GetProduct(app).ProductAdd(argR.Build())
+	ret, err := ProductAPI(app).ProductAdd(argR.Build())
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Printf("uint64 product id: %d create time: %s\n\n", ret.ProductID, ret.CreateTime)
+	t.Logf("uint64 product id: %d create time: %s\n\n", ret.ProductID, ret.CreateTime)
 }
 
 // TestExampleProductEdit 编辑商品
@@ -207,11 +207,11 @@ func TestExampleProductEdit(t *testing.T) {
 	t.Logf("AccessToken: %v\n\n", app.AccessToken)
 	arg := product.NewArgEdit("3437558429391149439")
 	arg.SetName("iPhone Xs Max 256GB")
-	err := GetProduct(app).ProductEdit(arg.Build())
+	err := ProductAPI(app).ProductEdit(arg.Build())
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println("edit success")
+	t.Log("edit success")
 }
 
 // TestExampleProductDel 删除商品
@@ -219,8 +219,8 @@ func TestExampleProductDel(t *testing.T) {
 
 	t.Logf("AccessToken: %v\n\n", app.AccessToken)
 
-	ret := GetProduct(app).ProductDel("3437555203686143344")
-	fmt.Printf("result: %v\n", ret)
+	ret := ProductAPI(app).ProductDel("3437555203686143344")
+	t.Logf("result: %v\n", ret)
 }
 
 // TestExampleOrderList 订单列表
@@ -240,15 +240,15 @@ func TestExampleOrderList(t *testing.T) {
 		Size:      100,
 	}
 	ret, err := app.OrderList(arg)
-	fmt.Printf("result: %+v %v\n\n", ret, err)
+	t.Logf("result: %+v %v\n\n", ret, err)
 
 	id := unit.OrderID("4710483426047603049A")
 
 	detail, err := app.OrderDetail(id)
-	fmt.Printf("detail: %+v %v\n", detail, err)
+	t.Logf("detail: %+v %v\n", detail, err)
 
 	err = app.OrderStockUp(id)
-	fmt.Printf("stockup: %v\n", err)
+	t.Logf("stockup: %v\n", err)
 }
 
 // TestExampleOrderServiceList 订单列表
@@ -266,10 +266,54 @@ func TestExampleOrderServiceList(t *testing.T) {
 		Page:      0,
 		Size:      100,
 	}
-	fmt.Printf("%v\n\n", ToParamMap(arg))
+	t.Logf("Param: %v\n\n", ToParamMap(arg))
+
 	list, err := app.OrderServiceList(arg)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Printf("%+v", list)
+	t.Logf("Result: %+v", list)
+}
+
+// TestExampleLogisticsAdd 发货
+func TestExampleLogisticsAdd(t *testing.T) {
+
+	t.Logf("AccessToken: %v\n\n", app.AccessToken)
+
+	//
+	company, err := LogisticsAPI(app).OrderLogisticsCompanyList()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("快速公司列表：%+v\n\n", company)
+
+	arg := order.ArgLogisticsAdd{
+		OrderID:       "4710483426047603049A",
+		LogisticsID:   7,
+		Company:       "圆通快递",
+		LogisticsCode: "YT4800634233119",
+	}
+	t.Logf("发货结果： %+v\n", OrderAPI(app).OrderLogisticsAdd(arg))
+}
+
+// TestExampleAddressProvinceList 获取平台支持的省列表
+func TestExampleAddressProvinceList(t *testing.T) {
+
+	t.Logf("AccessToken: %v\n\n", app.AccessToken)
+
+	//
+	list, err := app.AddressProvinceList()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	wg := sync.WaitGroup{}
+	for _, ls := range list {
+		city, _ := LogisticsAPI(app).AddressCityList(ls.ID)
+		for _, c := range city {
+			area, err := LogisticsAPI(app).AddressAreaList(c.ID)
+			fmt.Printf("%s %s \n%+v %v\n\n", ls.Province, c.City, area, err)
+		}
+	}
+	wg.Wait()
 }

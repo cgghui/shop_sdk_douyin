@@ -2,6 +2,7 @@ package shop_sdk_douyin
 
 import (
 	"errors"
+	"github.com/cgghui/shop_sdk_douyin/logistics"
 	"github.com/cgghui/shop_sdk_douyin/order"
 	"github.com/cgghui/shop_sdk_douyin/product"
 	"github.com/cgghui/shop_sdk_douyin/product/sku"
@@ -265,4 +266,56 @@ func (a *App) OrderServiceList(arg order.ArgServiceList) (order.ResponseServiceL
 // https://op.jinritemai.com/docs/api-docs/15/75
 func (a *App) OrderReplyService(id unit.ServiceID, reply string) error {
 	return a.base.NewRequest("order.replyService", ParamMap{"id": id, "reply": reply}, nil)
+}
+
+// OrderLogisticsCompanyList 回复服务请求
+// https://op.jinritemai.com/docs/api-docs/16/76
+func (a *App) OrderLogisticsCompanyList() (logistics.ResponseLogisticsCompanyList, error) {
+	var body logistics.ResponseLogisticsCompanyList
+	if err := a.base.NewRequest("order.logisticsCompanyList", nil, &body); err != nil {
+		return body, err
+	}
+	return body, nil
+}
+
+// OrderLogisticsAdd 订单发货
+// https://op.jinritemai.com/docs/api-docs/16/77
+func (a *App) OrderLogisticsAdd(arg order.ArgLogisticsAdd) error {
+	return a.base.NewRequest("order.logisticsAdd", arg, nil)
+}
+
+// OrderLogisticsEdit 修改发货物流
+// https://op.jinritemai.com/docs/api-docs/16/79
+func (a *App) OrderLogisticsEdit(arg order.ArgLogisticsAdd) error {
+	return a.base.NewRequest("order.logisticsEdit", arg, nil)
+}
+
+// AddressProvinceList 获取省列表
+// https://op.jinritemai.com/docs/api-docs/16/101
+func (a *App) AddressProvinceList() ([]logistics.Province, error) {
+	var body []logistics.Province
+	if err := a.base.NewRequest("address.provinceList", nil, &body); err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
+// AddressCityList 获取市列表
+// https://op.jinritemai.com/docs/api-docs/16/102
+func (a *App) AddressCityList(provID uint32) ([]logistics.City, error) {
+	var body []logistics.City
+	if err := a.base.NewRequest("address.cityList", ParamMap{"province_id": provID}, &body); err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
+// AddressCityList 获取市列表
+// https://op.jinritemai.com/docs/api-docs/16/103
+func (a *App) AddressAreaList(cityID uint32) ([]logistics.Area, error) {
+	var body []logistics.Area
+	if err := a.base.NewRequest("address.areaList", ParamMap{"city_id": cityID}, &body); err != nil {
+		return nil, err
+	}
+	return body, nil
 }
